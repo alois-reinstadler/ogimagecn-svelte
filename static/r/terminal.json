@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "terminal",
+  "title": "Terminal",
+  "description": "A minimal, technical Open Graph image with a wordmark and accent side-bar above a large wide-tracked uppercase headline.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Terminal.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Terminal.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { terminalDefaults, type TerminalProps } from '../registry.js';\n  import { terminalTemplate } from '../templates/definitions.js';\n\n  let {\n    brand = terminalDefaults.brand,\n    title = terminalDefaults.title,\n    caption = terminalDefaults.caption,\n    logo = terminalDefaults.logo,\n    overlay\n  }: TerminalProps = $props();\n</script>\n\n<OgNode node={terminalTemplate({ brand, title, caption, logo })} {overlay} />\n"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "logo",
+  "title": "Logo",
+  "description": "A centered brand Open Graph image with a logo tile, a large wordmark, and an optional tagline on a soft gradient field.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Logo.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Logo.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { logoDefaults, type LogoProps } from '../registry.js';\n  import { logoTemplate } from '../templates/definitions.js';\n\n  let {\n    brand = logoDefaults.brand,\n    tagline = logoDefaults.tagline,\n    monogram = logoDefaults.monogram,\n    background = logoDefaults.background,\n    logo = logoDefaults.logo,\n    overlay\n  }: LogoProps = $props();\n</script>\n\n<OgNode node={logoTemplate({ brand, tagline, monogram, background, logo })} {overlay} />\n"
+    }
+  ]
+}

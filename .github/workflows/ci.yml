@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  clean-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install from lockfile
+        run: pnpm install --frozen-lockfile
+      - name: Run the release validation pipeline
+        env:
+          CI: 1
+        run: pnpm validate:clean
+      - name: Ensure generated release surfaces are deterministic
+        run: git diff --exit-code -- registry.json static/r docs/static/r
+      - name: Upload image failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-test-artifacts
+          path: tests/artifacts
+          if-no-files-found: ignore

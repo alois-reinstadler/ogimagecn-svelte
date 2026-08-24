@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "profile",
+  "title": "Profile",
+  "description": "A personal / portfolio Open Graph image with a circular avatar beside a name, role, bio, and website pill.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Profile.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Profile.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { profileDefaults, resolveProps, type ProfileProps } from '../registry.js';\n  import { profileTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: ProfileProps = $props();\n  let resolved = $derived(resolveProps(profileDefaults, provided));\n</script>\n<OgNode node={profileTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

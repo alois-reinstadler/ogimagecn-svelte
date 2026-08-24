@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "event",
+  "title": "Event",
+  "description": "An event / launch Open Graph image with an eyebrow label, large title, and a date · location footer row.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Event.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Event.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { eventDefaults, type EventProps } from '../registry.js';\n  import { eventTemplate } from '../templates/definitions.js';\n\n  let {\n    label = eventDefaults.label,\n    brand = eventDefaults.brand,\n    title = eventDefaults.title,\n    date = eventDefaults.date,\n    location = eventDefaults.location,\n    logo = eventDefaults.logo,\n    overlay\n  }: EventProps = $props();\n</script>\n\n<OgNode node={eventTemplate({ label, brand, title, date, location, logo })} {overlay} />\n"
+    }
+  ]
+}

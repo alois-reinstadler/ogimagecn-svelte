@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "blog",
+  "title": "Blog",
+  "description": "An article Open Graph image with a category badge, headline, excerpt, and author row.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Blog.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Blog.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { blogDefaults, resolveProps, type BlogProps } from '../registry.js';\n  import { blogTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: BlogProps = $props();\n  let resolved = $derived(resolveProps(blogDefaults, provided));\n</script>\n<OgNode node={blogTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

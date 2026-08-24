@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "grid",
+  "title": "Grid",
+  "description": "A framed, technical Open Graph image with a dashed border grid and a corner brand mark.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Grid.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Grid.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { gridDefaults, resolveProps, type GridProps } from '../registry.js';\n  import { gridTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: GridProps = $props();\n  let resolved = $derived(resolveProps(gridDefaults, provided));\n</script>\n<OgNode node={gridTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Copyright 2014-2026 Adobe (http://www.adobe.com/), with Reserved Font Name
+'Source'. Noto Sans CJK is distributed under the SIL Open Font License,
+Version 1.1. The complete license text is included in OFL-NotoSans.txt in this
+directory and applies to this font file.

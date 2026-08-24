@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "stat",
+  "title": "Stat",
+  "description": "A metric / dashboard Open Graph image with an eyebrow label, an oversized number, a trend pill, and a caption.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Stat.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Stat.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { statDefaults, type StatProps } from '../registry.js';\n  import { statTemplate } from '../templates/definitions.js';\n\n  let {\n    label = statDefaults.label,\n    value = statDefaults.value,\n    caption = statDefaults.caption,\n    trend = statDefaults.trend,\n    brand = statDefaults.brand,\n    logo = statDefaults.logo,\n    overlay\n  }: StatProps = $props();\n</script>\n\n<OgNode node={statTemplate({ label, value, caption, trend, brand, logo })} {overlay} />\n"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "owner",
+  "title": "Owner",
+  "description": "A clean Open Graph image with a light background, eyebrow text, bold headline, and three rounded photos at the bottom.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Owner.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Owner.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { ownerDefaults, type OwnerProps } from '../registry.js';\n  import { ownerTemplate } from '../templates/definitions.js';\n\n  let { eyebrow = ownerDefaults.eyebrow, title = ownerDefaults.title, brand = ownerDefaults.brand,\n    // Exact remote gallery values remain exported in ownerDefaults. No-prop rendering stays offline.\n    images = [], logo = '', overlay }: OwnerProps = $props();\n</script>\n\n<OgNode node={ownerTemplate({ eyebrow, title, brand, images, logo })} {overlay} />\n"
+    }
+  ]
+}

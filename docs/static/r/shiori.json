@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "shiori",
+  "title": "Shiori",
+  "description": "A clean, minimal Open Graph image with a light cream background, an orange gradient circle logo, and a bold title beside a muted description.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Shiori.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Shiori.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shioriDefaults, type ShioriProps } from '../registry.js';\n  import { shioriTemplate } from '../templates/definitions.js';\n\n  let {\n    background = shioriDefaults.background,\n    brand = shioriDefaults.brand,\n    brandColor = shioriDefaults.brandColor,\n    // Keep no-prop rendering offline and deterministic; explicit props retain the upstream URL.\n    logo = '',\n    title = shioriDefaults.title,\n    titleColor = shioriDefaults.titleColor,\n    overlay\n  }: ShioriProps = $props();\n</script>\n\n<OgNode node={shioriTemplate({ background, brand, brandColor, logo, title, titleColor })} {overlay} />\n"
+    }
+  ]
+}

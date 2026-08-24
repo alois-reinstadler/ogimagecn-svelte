@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "simple",
+  "title": "Simple",
+  "description": "A minimal, centered Open Graph image with an eyebrow label, title, description, and brand mark.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Simple.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Simple.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { simpleDefaults, type SimpleProps } from '../registry.js';\n  import { simpleTemplate } from '../templates/simple.js';\n\n  let {\n    label = simpleDefaults.label,\n    title = simpleDefaults.title,\n    description = simpleDefaults.description,\n    brand = simpleDefaults.brand,\n    logo = simpleDefaults.logo,\n    overlay\n  }: SimpleProps = $props();\n</script>\n\n<OgNode node={simpleTemplate({ label, title, description, brand, logo })} {overlay} />\n"
+    }
+  ]
+}

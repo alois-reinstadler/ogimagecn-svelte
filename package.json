@@ -1,0 +1,88 @@
+{
+  "name": "ogimagecn-svelte",
+  "version": "0.1.0",
+  "description": "Typed Svelte 5 Open Graph image components rendered by Satori",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "UPSTREAM.md",
+    "LICENSE",
+    "docs/UPSTREAM_PIN.md",
+    "docs/UPSTREAM_AUDIT.md"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./render": {
+      "types": "./dist/render.d.ts",
+      "import": "./dist/render.js"
+    },
+    "./fonts": {
+      "types": "./dist/fonts.d.ts",
+      "import": "./dist/fonts.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.svelte.d.ts",
+      "svelte": "./dist/components/*.svelte",
+      "import": "./dist/components/*.svelte"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "svelte-package && publint",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "test:update": "UPDATE_SNAPSHOTS=1 vitest run",
+    "registry:build": "node scripts/build-registry.mjs",
+    "docs:build": "pnpm --dir docs build",
+    "validate:package": "node scripts/validate-package.mjs",
+    "validate:registry": "node scripts/validate-registry.mjs",
+    "validate:clean": "node scripts/clean-validate.mjs",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "satori": "0.26.0",
+    "satori-html": "0.3.2"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "2.5.8",
+    "@sveltejs/vite-plugin-svelte": "6.1.4",
+    "@types/node": "24.3.0",
+    "@types/pngjs": "6.0.5",
+    "pngjs": "7.0.0",
+    "publint": "0.3.13",
+    "svelte": "5.56.10",
+    "svelte-check": "4.3.1",
+    "typescript": "5.9.2",
+    "vite": "7.1.3",
+    "vitest": "3.2.4"
+  },
+  "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alois-reinstadler/ogimagecn-svelte.git"
+  },
+  "keywords": [
+    "svelte",
+    "svelte5",
+    "satori",
+    "open-graph",
+    "og-image",
+    "shadcn-svelte"
+  ]
+}

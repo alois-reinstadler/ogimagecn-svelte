@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "showcase",
+  "title": "Showcase",
+  "description": "A product-showcase Open Graph image with a centered headline above a faux browser window and a minimal dashboard UI.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Showcase.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Showcase.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { showcaseDefaults, type ShowcaseProps } from '../registry.js';\n  import { showcaseTemplate } from '../templates/definitions.js';\n\n  let {\n    title = showcaseDefaults.title,\n    subtitle = showcaseDefaults.subtitle,\n    url = showcaseDefaults.url,\n    accent = showcaseDefaults.accent,\n    overlay\n  }: ShowcaseProps = $props();\n</script>\n\n<OgNode node={showcaseTemplate({ title, subtitle, url, accent })} {overlay} />\n"
+    }
+  ]
+}

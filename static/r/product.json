@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "product",
+  "title": "Product",
+  "description": "A two-column product Open Graph image with brand and copy on the left, a product shot on the right, and a price pill.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Product.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Product.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { productDefaults, resolveProps, type ProductProps } from '../registry.js';\n  import { productTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: ProductProps = $props();\n  let resolved = $derived(resolveProps(productDefaults, provided));\n</script>\n<OgNode node={productTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

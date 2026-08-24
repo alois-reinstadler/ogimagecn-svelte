@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "changelog",
+  "title": "Changelog",
+  "description": "A release Open Graph image with a version pill, date, title, and a checklist of highlights.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Changelog.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Changelog.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { changelogDefaults, resolveProps, type ChangelogProps } from '../registry.js';\n  import { changelogTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: ChangelogProps = $props();\n  let resolved = $derived(resolveProps(changelogDefaults, provided));\n</script>\n<OgNode node={changelogTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "editorial",
+  "title": "Editorial",
+  "description": "A poster-style Open Graph image with oversized display type and a large faint ghost word set behind the content.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Editorial.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Editorial.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { editorialDefaults, type EditorialProps } from '../registry.js';\n  import { editorialTemplate } from '../templates/definitions.js';\n\n  let {\n    kicker = editorialDefaults.kicker,\n    title = editorialDefaults.title,\n    meta = editorialDefaults.meta,\n    ghost = editorialDefaults.ghost,\n    brand = editorialDefaults.brand,\n    logo = editorialDefaults.logo,\n    overlay\n  }: EditorialProps = $props();\n</script>\n\n<OgNode node={editorialTemplate({ kicker, title, meta, ghost, brand, logo })} {overlay} />\n"
+    }
+  ]
+}

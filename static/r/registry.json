@@ -1,0 +1,465 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry.json",
+  "name": "ogimagecn-svelte",
+  "homepage": "https://alois-reinstadler.github.io/ogimagecn-svelte",
+  "items": [
+    {
+      "name": "runtime",
+      "title": "ogimagecn Svelte renderer runtime",
+      "description": "Svelte-to-Satori VDOM, font, rendering, and shared type utilities.",
+      "type": "registry:lib",
+      "dependencies": [
+        "@resvg/resvg-js@2.6.2",
+        "satori-html@0.3.2",
+        "satori@0.26.0",
+        "svelte@^5.0.0"
+      ],
+      "files": [
+        {
+          "path": "src/lib/components/OgNode.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/OgNode.svelte",
+          "content": "<script lang=\"ts\">\n  import type { Snippet } from 'svelte';\n  import OgNodeRenderer from './OgNode.svelte';\n  import type { OgNode } from '../templates/node.js';\n  import { serializeStyle } from '../templates/node.js';\n\n  interface Props {\n    node: OgNode;\n    overlay?: Snippet;\n    root?: boolean;\n  }\n\n  let { node, overlay, root = true }: Props = $props();\n</script>\n\n<!-- Keep this block compact: literal SSR whitespace becomes Satori text nodes. -->\n<svelte:element this={node.tag} {...node.attrs} style={serializeStyle(node.style, node.tag)}>{#each node.children ?? [] as child}{#if typeof child === 'string'}{child}{:else}<OgNodeRenderer node={child} root={false} />{/if}{/each}{#if root && overlay}<div style=\"display:flex;position:absolute;inset:0px\">{@render overlay()}</div>{/if}</svelte:element>\n"
+        },
+        {
+          "path": "src/lib/fonts.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/fonts.ts",
+          "content": "import { readFile } from 'node:fs/promises';\nimport type { OgFont } from './types.js';\n\nconst fontUrl = (name: string) => new URL(`https://alois-reinstadler.github.io/ogimagecn-svelte/fonts/${name}`);\n\nasync function loadRegistryFont(name: string): Promise<ArrayBuffer> {\n  const response = await fetch(fontUrl(name));\n  if (!response.ok) throw new Error(`Unable to load fixture font ${name}: ${response.status} ${response.statusText}`);\n  return response.arrayBuffer();\n}\n\nconst FIXTURE_FONT_FILES = [\n  ['Noto Sans', 'NotoSans-Latin-400-Normal.woff', 400, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-Latin-500-Normal.woff', 500, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-Latin-600-Normal.woff', 600, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-Latin-700-Normal.woff', 700, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-Latin-800-Normal.woff', 800, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-Latin-400-Italic.woff', 400, 'italic', undefined],\n  ['Noto Sans', 'NotoSans-Latin-700-Italic.woff', 700, 'italic', undefined],\n  ['Noto Sans', 'NotoSans-greek-400-Normal.woff', 400, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-cyrillic-400-Normal.woff', 400, 'normal', undefined],\n  ['Noto Sans', 'NotoSans-vietnamese-400-Normal.woff', 400, 'normal', undefined],\n  ['Noto Sans', 'NotoSansCJKsc-Regular.otf', 400, 'normal', 'zh-CN']\n] as const;\n\nlet fixtureFonts: Promise<OgFont[]> | undefined;\n\nexport function loadFixtureFonts(): Promise<OgFont[]> {\n  fixtureFonts ??= Promise.all(\n    FIXTURE_FONT_FILES.map(async ([name, file, weight, style, lang]) => ({\n      name,\n      data: await loadRegistryFont(file),\n      weight,\n      style,\n      lang\n    }))\n  );\n  return fixtureFonts;\n}\n\nexport async function loadFont(\n  source: string | URL | ArrayBuffer | Uint8Array,\n  options: Omit<OgFont, 'data'>\n): Promise<OgFont> {\n  let data: OgFont['data'];\n  if (typeof source === 'string' || source instanceof URL) {\n    const url = source instanceof URL ? source : new URL(source);\n    if (url.protocol === 'file:') data = await readFile(url);\n    else {\n      const response = await fetch(url);\n      if (!response.ok) throw new Error(`Unable to load font ${url}: ${response.status} ${response.statusText}`);\n      data = await response.arrayBuffer();\n    }\n  } else data = source instanceof Uint8Array ? Uint8Array.from(source).buffer : source;\n  return { ...options, data };\n}\n"
+        },
+        {
+          "path": "src/lib/registry.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/registry.ts",
+          "content": "import type { Component, Snippet } from 'svelte';\n\nexport interface ComposableOgProps {\n  /** Absolute overlay rendered last, and therefore above the default Satori layout. */\n  overlay?: Snippet;\n}\n\nexport function resolveProps<T extends Record<string, unknown>>(defaults: T, provided: Partial<T>): T {\n  const resolved = { ...defaults };\n  for (const [key, value] of Object.entries(provided)) {\n    if (value !== undefined) resolved[key as keyof T] = value as T[keyof T];\n  }\n  return resolved;\n}\n\nexport interface SimpleProps extends ComposableOgProps {\n  label?: string;\n  title?: string;\n  description?: string;\n  brand?: string;\n  logo?: string;\n}\n\nexport const simpleDefaults = {\n  brand: 'ogimagecn',\n  description: 'A shadcn registry of social card components you can copy, paste, and ship.',\n  label: 'Open Graph',\n  logo: '',\n  title: 'Beautiful OG images, built on Satori'\n} satisfies Required<Omit<SimpleProps, 'overlay'>>;\n\nexport interface BlogProps extends ComposableOgProps {\n  category?: string; title?: string; excerpt?: string; author?: string; meta?: string;\n  avatar?: string; brand?: string; logo?: string;\n}\nexport const blogDefaults = {\n  author: 'Ada Lovelace', avatar: '', brand: 'ogimagecn', category: 'Engineering',\n  excerpt: 'A deep dive into Satori, the next/og runtime, and shipping fast cards.', logo: '',\n  meta: 'Jun 5, 2026 · 6 min read', title: 'How we generate social images at the edge'\n} satisfies Required<Omit<BlogProps, 'overlay'>>;\n\nexport interface ChangelogProps extends ComposableOgProps {\n  version?: string; date?: string; title?: string; items?: string[]; brand?: string; logo?: string;\n}\nexport const changelogDefaults = {\n  brand: 'ogimagecn', date: 'June 2026',\n  items: ['Seven new OG image components', 'Live in-browser previews', 'One-line shadcn install'],\n  logo: '', title: \"What's new\", version: 'v2.0'\n} satisfies Required<Omit<ChangelogProps, 'overlay'>>;\n\nexport interface EditorialProps extends ComposableOgProps {\n  kicker?: string; title?: string; meta?: string; ghost?: string; brand?: string; logo?: string;\n}\nexport const editorialDefaults = {\n  brand: 'ogimagecn', ghost: '', kicker: 'Essay', logo: '', meta: 'Issue 04',\n  title: 'Designing at the edge of the canvas'\n} satisfies Required<Omit<EditorialProps, 'overlay'>>;\n\nexport interface EventProps extends ComposableOgProps {\n  label?: string; brand?: string; title?: string; date?: string; location?: string; logo?: string;\n}\nexport const eventDefaults = {\n  brand: 'ogimagecn', date: 'Jun 5, 2026 · 10:00 AM PT', label: 'Live Event', location: 'Online',\n  logo: '', title: 'Shipping beautiful OG images at scale'\n} satisfies Required<Omit<EventProps, 'overlay'>>;\n\nexport interface GridProps extends ComposableOgProps {\n  title?: string; description?: string; brand?: string; logo?: string;\n}\nexport const gridDefaults = {\n  brand: 'ogimagecn', description: 'Composable components powered by Satori and the next/og runtime.',\n  logo: '', title: 'Build your own OG images'\n} satisfies Required<Omit<GridProps, 'overlay'>>;\n\nexport interface LogoProps extends ComposableOgProps {\n  brand?: string; tagline?: string; monogram?: string; background?: string; logo?: string;\n}\nexport const logoDefaults = {\n  background: '#09090b', brand: 'ogimagecn', logo: '', monogram: '',\n  tagline: 'Open Graph images, built on Satori'\n} satisfies Required<Omit<LogoProps, 'overlay'>>;\n\nexport interface OwnerProps extends ComposableOgProps {\n  eyebrow?: string; title?: string; brand?: string; images?: string[]; logo?: string;\n}\nexport const ownerDefaults = {\n  brand: 'Owner', eyebrow: 'Meet Owner.',\n  images: [\n    'https://picsum.photos/id/1005/400/400',\n    'https://picsum.photos/id/1012/400/400',\n    'https://picsum.photos/id/1025/400/400'\n  ],\n  logo: 'https://cdn.prod.website-files.com/69b9330c8b70142e4e5f7d3c/69df6b6abf59b8c2317f7635_favicon-dark.png',\n  title: 'We make online growth easy for restaurants.'\n} satisfies Required<Omit<OwnerProps, 'overlay'>>;\n\nexport interface PhotoProps extends ComposableOgProps {\n  image?: string; label?: string; title?: string; brand?: string; logo?: string;\n}\nexport const photoDefaults = {\n  brand: 'ogimagecn', image: '', label: 'Travel', logo: '', title: 'Chasing light across the northern coast'\n} satisfies Required<Omit<PhotoProps, 'overlay'>>;\n\nexport interface ProductProps extends ComposableOgProps {\n  brand?: string; title?: string; description?: string; price?: string; image?: string; logo?: string;\n}\nexport const productDefaults = {\n  brand: 'ogimagecn', description: 'Copy-paste social cards rendered with next/og.', image: '', logo: '',\n  price: '$49', title: 'The OG image toolkit'\n} satisfies Required<Omit<ProductProps, 'overlay'>>;\n\nexport interface ProfileProps extends ComposableOgProps {\n  name?: string; role?: string; bio?: string; avatar?: string; website?: string;\n}\nexport const profileDefaults = {\n  avatar: '', bio: 'Building tools for the open web. Writing about design systems, performance, and shipping fast.',\n  name: 'Ada Lovelace', role: 'Founder & Engineer', website: 'ada.dev'\n} satisfies Required<Omit<ProfileProps, 'overlay'>>;\n\nexport interface QuoteProps extends ComposableOgProps {\n  quote?: string; author?: string; handle?: string; avatar?: string;\n}\nexport const quoteDefaults = {\n  author: 'Grace Hopper', avatar: '', handle: '@gracehopper',\n  quote: 'This is hands down the fastest way to ship beautiful OG images.'\n} satisfies Required<Omit<QuoteProps, 'overlay'>>;\n\nexport interface ShadcnRegistry1Props extends ComposableOgProps {\n  name?: string; url?: string; description?: string; logo?: string; items?: string[];\n}\nexport const shadcnRegistry1Defaults = {\n  description: 'Beautifully designed components built with Radix UI and Tailwind CSS.',\n  items: ['159+ components', 'open source', 'accessible'], logo: '', name: 'ogimagecn', url: 'ui.shadcn.com'\n} satisfies Required<Omit<ShadcnRegistry1Props, 'overlay'>>;\n\nexport interface ShadcnRegistry2Props extends ComposableOgProps {\n  name?: string; category?: string; title?: string; items?: string[]; logo?: string; accent?: string;\n}\nexport const shadcnRegistry2Defaults = {\n  accent: '#4f46e5', category: 'Marketing', items: ['Reusable', 'Scalable', 'Composable'], logo: '',\n  name: 'ogimagecn', title: 'Animated components crafted for smooth interaction'\n} satisfies Required<Omit<ShadcnRegistry2Props, 'overlay'>>;\n\nexport interface ShadcnRegistry3Props extends ComposableOgProps {\n  title?: string; credit?: string; ghost?: string; logo?: string;\n}\nexport const shadcnRegistry3Defaults = {\n  credit: 'Developed By @alaymanguy', ghost: 'LOREM', logo: '',\n  title: 'Beautifully designed open source components built with Radix UI and Tailwind CSS for your next project'\n} satisfies Required<Omit<ShadcnRegistry3Props, 'overlay'>>;\n\nexport interface ShadcnRegistry4Props extends ComposableOgProps {\n  name?: string; title?: string; url?: string; logo?: string;\n}\nexport const shadcnRegistry4Defaults = {\n  logo: '', name: 'ogimagecn',\n  title: 'Discover animated primitives, components, and icons for building expressive, modern UIs',\n  url: 'ogimagecn.com'\n} satisfies Required<Omit<ShadcnRegistry4Props, 'overlay'>>;\n\nexport interface ShadcnRegistry5Props extends ComposableOgProps {\n  name?: string; title?: string; description?: string; logo?: string;\n}\nexport const shadcnRegistry5Defaults = {\n  description: 'Built with React, Typescript, shadcn/ui, Tailwind CSS, and Motion.', logo: '',\n  name: 'ogimagecn', title: 'Modern Next.js Templates'\n} satisfies Required<Omit<ShadcnRegistry5Props, 'overlay'>>;\n\nexport interface ShadcnRegistry6Props extends ComposableOgProps {\n  title?: string; description?: string; brand?: string; logo?: string;\n}\nexport const shadcnRegistry6Defaults = {\n  brand: 'ogimagecn', description: 'Composable OG image components built with Satori.', logo: '',\n  title: 'Build your own OG images'\n} satisfies Required<Omit<ShadcnRegistry6Props, 'overlay'>>;\n\nexport interface ShioriProps extends ComposableOgProps {\n  background?: string; brand?: string; brandColor?: string; logo?: string; title?: string; titleColor?: string;\n}\nexport const shioriDefaults = {\n  background: '#faf6f1', brand: 'Shiori', brandColor: '#1a1a1a', logo: 'https://www.shiori.sh/logo.png',\n  title: 'A beautifully simple read-it-later app', titleColor: '#8b7e74'\n} satisfies Required<Omit<ShioriProps, 'overlay'>>;\n\nexport interface ShowcaseProps extends ComposableOgProps {\n  title?: string; subtitle?: string; url?: string; accent?: string;\n}\nexport const showcaseDefaults = {\n  accent: '#6366f1', subtitle: 'The dashboard that brings every metric into one calm view.',\n  title: 'Run your business smarter', url: 'app.ogimagecn.com'\n} satisfies Required<Omit<ShowcaseProps, 'overlay'>>;\n\nexport interface StatProps extends ComposableOgProps {\n  label?: string; value?: string; caption?: string; trend?: string; brand?: string; logo?: string;\n}\nexport const statDefaults = {\n  brand: 'ogimagecn', caption: 'Open Graph images generated with next/og this year.', label: 'Images rendered',\n  logo: '', trend: '+24%', value: '10M+'\n} satisfies Required<Omit<StatProps, 'overlay'>>;\n\nexport interface TerminalProps extends ComposableOgProps {\n  brand?: string; title?: string; caption?: string; logo?: string;\n}\nexport const terminalDefaults = {\n  brand: 'ogimagecn', caption: 'npx shadcn@latest add ogimagecn', logo: '', title: 'Ship beautiful OG images'\n} satisfies Required<Omit<TerminalProps, 'overlay'>>;\n\nexport interface RegistryEntry<Props extends Record<string, unknown> = Record<string, unknown>> {\n  name: string;\n  title: string;\n  category: 'brand' | 'content' | 'product' | 'shadcn-registry';\n  component: Component<Props>;\n  defaults: Omit<Props, 'overlay'>;\n}\n"
+        },
+        {
+          "path": "src/lib/render.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/render.ts",
+          "content": "import { Resvg } from '@resvg/resvg-js';\nimport satori, { type SatoriNode } from 'satori';\nimport { html as toSatoriNode } from 'satori-html';\nimport { render } from 'svelte/server';\nimport type { Component } from 'svelte';\nimport { loadFixtureFonts } from './fonts.js';\nimport {\n  OG_HEIGHT,\n  OG_WIDTH,\n  type RenderedNode,\n  type RenderOptions,\n  type RenderedImage,\n  type RenderPngOptions,\n  type SatoriVNode\n} from './types.js';\n\nfunction normalizeWarning(value: unknown): string {\n  return value instanceof Error ? value.message : String(value);\n}\n\n// console is process-global. Serialize the small region in which Satori/Resvg may\n// report warnings so concurrent renders cannot steal or lose one another's output.\nlet warningCaptureQueue: Promise<void> = Promise.resolve();\n\nasync function withCapturedWarnings<T>(task: () => Promise<T>): Promise<{ result: T; warnings: string[] }> {\n  const previous = warningCaptureQueue;\n  let release!: () => void;\n  warningCaptureQueue = new Promise<void>((resolve) => {\n    release = resolve;\n  });\n  await previous;\n\n  const warnings: string[] = [];\n  const originalWarn = console.warn;\n  const originalError = console.error;\n  console.warn = (...values: unknown[]) => warnings.push(values.map(normalizeWarning).join(' '));\n  console.error = (...values: unknown[]) => warnings.push(values.map(normalizeWarning).join(' '));\n  try {\n    return { result: await task(), warnings };\n  } finally {\n    console.warn = originalWarn;\n    console.error = originalError;\n    release();\n  }\n}\n\nfunction assertDimensions(width: number, height: number): void {\n  if (!Number.isSafeInteger(width) || width <= 0 || !Number.isSafeInteger(height) || height <= 0) {\n    throw new TypeError(`Image dimensions must be positive safe integers; received ${width}x${height}.`);\n  }\n}\n\nfunction assertSvg(svg: string, width: number, height: number): void {\n  const root = svg.match(/^<svg\\b[^>]*>/)?.[0];\n  if (!root) throw new Error('Satori returned an invalid SVG document.');\n  const svgWidth = Number(root.match(/\\bwidth=\"([0-9.]+)\"/)?.[1]);\n  const svgHeight = Number(root.match(/\\bheight=\"([0-9.]+)\"/)?.[1]);\n  if (svgWidth !== width || svgHeight !== height) {\n    throw new Error(`Satori returned ${svgWidth}x${svgHeight}; expected ${width}x${height}.`);\n  }\n}\n\nfunction snapshotNode(node: SatoriNode): RenderedNode {\n  return {\n    left: node.left,\n    top: node.top,\n    width: node.width,\n    height: node.height,\n    type: node.type,\n    ...(node.key === undefined ? {} : { key: node.key }),\n    ...(node.textContent === undefined ? {} : { textContent: node.textContent })\n  };\n}\n\nfunction decodeHtmlEntities(value: string): string {\n  return value.replace(/&(?:#(\\d+)|#x([\\da-f]+)|(amp|lt|gt|quot|apos));/gi, (entity, decimal, hex, named) => {\n    if (decimal) return String.fromCodePoint(Number(decimal));\n    if (hex) return String.fromCodePoint(Number.parseInt(hex, 16));\n    const replacements: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '\"', apos: \"'\" };\n    return replacements[String(named).toLowerCase()] ?? entity;\n  });\n}\n\n/**\n * Render a Svelte 5 component (including Snippet props) to the small VDOM shape\n * consumed by Satori. Consumers never need React or JSX at this boundary.\n */\nexport function renderSvelteToSatori<Props extends Record<string, unknown>>(\n  component: Component<Props>,\n  props: Props\n): SatoriVNode {\n  const rendered = render(component, { props });\n  if (!rendered.body.trim()) throw new Error('The Svelte component rendered an empty body.');\n  // Svelte SSR emits hydration comments around dynamic expressions. They are\n  // meaningful to Svelte's client hydrator but can split/drop adjacent text in\n  // HTML-to-VDOM parsers, so the server-only Satori boundary removes them.\n  const serverOnlyHtml = rendered.body.replace(/<!--[\\s\\S]*?-->/g, '');\n  const root = toSatoriNode(serverOnlyHtml) as SatoriVNode;\n\n  // HTML attributes are strings after SSR. Satori deliberately distinguishes\n  // numeric intrinsic image sizes from CSS lengths and warns for `width=\"64\"`.\n  // Restore the number type a Svelte/DOM author intended at this boundary.\n  const normalize = (node: SatoriVNode): void => {\n    if (node.type === 'img' || node.type === 'svg') {\n      for (const attribute of ['width', 'height'] as const) {\n        const value = node.props[attribute];\n        if (typeof value === 'string' && /^\\d+(?:\\.\\d+)?$/.test(value)) node.props[attribute] = Number(value);\n      }\n    }\n    // `alt` belongs to HTML accessibility semantics but is not a Satori prop;\n    // retaining it produces a renderer warning without affecting the final SVG.\n    if (node.type === 'img') delete node.props.alt;\n    let children = node.props.children;\n    if (Array.isArray(children)) {\n      children = children.map((child) => (typeof child === 'string' ? decodeHtmlEntities(child) : child));\n      // satori-html can produce a mixed raw-text/element child array. Satori's\n      // flex traversal may omit that raw text, so materialize it as an inheriting\n      // flex span, matching the box React creates internally for the same input.\n      const hasElement = children.some((child) => child && typeof child !== 'string');\n      if (hasElement) {\n        children = children.map((child) =>\n          typeof child === 'string' && child.length > 0\n            ? { type: 'span', props: { style: { display: 'flex' }, children: child } }\n            : child\n        );\n      }\n      node.props.children = children;\n      for (const child of children) if (child && typeof child !== 'string') normalize(child);\n    } else if (typeof children === 'string') {\n      node.props.children = decodeHtmlEntities(children);\n    } else if (children) normalize(children);\n  };\n  normalize(root);\n  return root;\n}\n\nexport async function renderSvg<Props extends Record<string, unknown>>(\n  component: Component<Props>,\n  props: Props,\n  options: RenderOptions = {}\n): Promise<RenderedImage> {\n  const width = options.width ?? OG_WIDTH;\n  const height = options.height ?? OG_HEIGHT;\n  assertDimensions(width, height);\n  const fonts = options.fonts ?? (await loadFixtureFonts());\n  const nodes: RenderedNode[] = [];\n  const { result: svg, warnings } = await withCapturedWarnings(() => {\n    const node = renderSvelteToSatori(component, props);\n    return satori(node as Parameters<typeof satori>[0], {\n      width,\n      height,\n      fonts,\n      debug: options.debug,\n      embedFont: options.embedFont ?? true,\n      graphemeImages: options.graphemeImages,\n      loadAdditionalAsset: options.loadAdditionalAsset,\n      onNodeDetected: (detected) => {\n        if (options.collectNodes) nodes.push(snapshotNode(detected));\n        options.onNodeDetected?.(detected);\n      }\n    });\n  });\n\n  if ((options.strict ?? true) && warnings.length > 0) {\n    throw new Error(`Satori emitted renderer warnings:\\n${warnings.join('\\n')}`);\n  }\n  assertSvg(svg, width, height);\n  return { svg, width, height, warnings, nodes };\n}\n\nfunction rasterize(svg: string, options: RenderPngOptions): Uint8Array {\n  const renderer = new Resvg(svg, options.fitTo ? { fitTo: options.fitTo } : undefined);\n  const png = renderer.render().asPng();\n  const signature = [137, 80, 78, 71, 13, 10, 26, 10];\n  if (png.length < 24 || !signature.every((byte, index) => png[index] === byte)) {\n    throw new Error('Resvg returned an invalid PNG document.');\n  }\n  return png;\n}\n\nexport async function renderPng<Props extends Record<string, unknown>>(\n  component: Component<Props>,\n  props: Props,\n  options: RenderPngOptions = {}\n): Promise<Uint8Array> {\n  const { svg } = await renderSvg(component, props, options);\n  const { result, warnings } = await withCapturedWarnings(async () => rasterize(svg, options));\n  if ((options.strict ?? true) && warnings.length > 0) {\n    throw new Error(`Resvg emitted renderer warnings:\\n${warnings.join('\\n')}`);\n  }\n  return result;\n}\n\nexport async function renderImage<Props extends Record<string, unknown>>(\n  component: Component<Props>,\n  props: Props,\n  options: RenderPngOptions = {}\n): Promise<RenderedImage & { png: Uint8Array }> {\n  const rendered = await renderSvg(component, props, options);\n  const { result: png, warnings } = await withCapturedWarnings(async () => rasterize(rendered.svg, options));\n  const allWarnings = [...rendered.warnings, ...warnings];\n  if ((options.strict ?? true) && warnings.length > 0) {\n    throw new Error(`Resvg emitted renderer warnings:\\n${warnings.join('\\n')}`);\n  }\n  return { ...rendered, warnings: allWarnings, png };\n}\n"
+        },
+        {
+          "path": "src/lib/templates/definitions.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/templates/definitions.ts",
+          "content": "import type {\n  BlogProps, ChangelogProps, EditorialProps, EventProps, GridProps, LogoProps,\n  OwnerProps, PhotoProps, ProductProps, ProfileProps, QuoteProps,\n  ShadcnRegistry1Props, ShadcnRegistry2Props, ShadcnRegistry3Props,\n  ShadcnRegistry4Props, ShadcnRegistry5Props, ShadcnRegistry6Props,\n  ShioriProps, ShowcaseProps, StatProps, TerminalProps\n} from '../registry.js';\nimport { div, image, node, span, type OgNode, type OgStyle } from './node.js';\n\ntype Resolved<T> = Required<Omit<T, 'overlay'>>;\n\nconst initials = (name: string) => name.split(' ').map((part) => part.charAt(0)).slice(0, 2).join('').toUpperCase();\nconst imgOr = (src: string, width: number, height: number, imageStyle: OgStyle, fallback: OgNode) =>\n  src ? image(src, width, height, imageStyle) : fallback;\n\nconst svg = (attrs: Record<string, string | number>, children: OgNode[]) => node('svg', undefined, children, attrs);\nconst path = (d: string, attrs: Record<string, string | number> = {}) => node('path', undefined, undefined, { d, ...attrs });\n\nexport function blogTemplate(p: Resolved<BlogProps>): OgNode {\n  return div({ backgroundColor:'#ffffff', color:'#0a0a0a', display:'flex', flexDirection:'column', height:'100%', justifyContent:'space-between', padding:'80px', position:'relative', width:'100%' }, [\n    div({ alignSelf:'flex-start', backgroundColor:'rgba(124,58,237,0.15)', borderRadius:'999px', color:'#7c3aed', display:'flex', fontSize:'26px', fontWeight:600, letterSpacing:'0.02em', padding:'10px 22px', textTransform:'uppercase' }, [p.category]),\n    div({ display:'flex', flexDirection:'column' }, [\n      div({ display:'flex', fontSize:p.title.length > 48 ? 64 : 78, fontWeight:700, letterSpacing:'-0.03em', lineHeight:1.05, maxWidth:'1000px' }, [p.title]),\n      div({ color:'#52525b', display:'flex', fontSize:'34px', lineHeight:1.4, marginTop:'28px', maxWidth:'920px' }, [p.excerpt])\n    ]),\n    div({ alignItems:'center', display:'flex', gap:'20px' }, [\n      p.avatar ? image(p.avatar,72,72,{ borderRadius:'999px' }) : div({ alignItems:'center', backgroundColor:'#7c3aed', borderRadius:'999px', color:'#ffffff', display:'flex', fontSize:'30px', fontWeight:700, height:'72px', justifyContent:'center', width:'72px' }, [initials(p.author)]),\n      div({ display:'flex', flexDirection:'column' }, [\n        div({ display:'flex', fontSize:'30px', fontWeight:600 }, [p.author]),\n        div({ color:'#71717a', display:'flex', fontSize:'24px' }, [p.meta])\n      ])\n    ]),\n    div({ alignItems:'center', display:'flex', gap:'12px', position:'absolute', right:'80px', top:'80px' }, [\n      imgOr(p.logo,40,40,{ borderRadius:'8px', objectFit:'contain' },div({ alignItems:'center', backgroundColor:'#7c3aed', borderRadius:'8px', color:'#ffffff', display:'flex', fontSize:'20px', fontWeight:700, height:'40px', justifyContent:'center', width:'40px' })),\n      div({ fontSize:'32px', fontWeight:700 }, [p.brand])\n    ])\n  ]);\n}\n\nexport function changelogTemplate(p: Resolved<ChangelogProps>): OgNode {\n  const check = svg({ fill:'none', height:22, stroke:'#34d399', 'stroke-linecap':'round', 'stroke-linejoin':'round', 'stroke-width':3, viewBox:'0 0 24 24', width:22 }, [path('M20 6 9 17l-5-5')]);\n  return div({ backgroundColor:'#0a0a0a', backgroundImage:'radial-gradient(circle at 100% 0%, rgba(52,211,153,0.16), transparent 50%)', color:'#fafafa', display:'flex', flexDirection:'column', height:'100%', padding:'80px', position:'relative', width:'100%' }, [\n    div({ alignItems:'center', display:'flex', gap:'20px' }, [\n      div({ alignItems:'center', backgroundColor:'rgba(52,211,153,0.15)', borderRadius:'999px', color:'#34d399', display:'flex', fontSize:'28px', fontWeight:700, gap:'8px', padding:'10px 22px' }, [...(p.logo ? [image(p.logo,20,20,{ borderRadius:'4px', objectFit:'contain' })] : []), p.version]),\n      div({ color:'#a1a1aa', display:'flex', fontSize:'28px' }, [p.date])\n    ]),\n    div({ display:'flex', fontSize:'80px', fontWeight:700, letterSpacing:'-0.03em', marginTop:'32px' }, [p.title]),\n    div({ display:'flex', flexDirection:'column', gap:'22px', marginTop:'44px' }, p.items.slice(0,4).map((item) =>\n      div({ alignItems:'center', display:'flex', gap:'20px' }, [div({ alignItems:'center', backgroundColor:'rgba(52,211,153,0.15)', borderRadius:'999px', display:'flex', height:'40px', justifyContent:'center', width:'40px' }, [check]), div({ color:'#e4e4e7', display:'flex', fontSize:'34px' }, [item])])\n    )),\n    div({ alignItems:'center', display:'flex', gap:'12px', position:'absolute', right:'80px', top:'80px' }, [\n      imgOr(p.logo,40,40,{ borderRadius:'8px', objectFit:'contain' },div({ alignItems:'center', backgroundColor:'#34d399', borderRadius:'8px', color:'#0a0a0a', display:'flex', fontSize:'20px', fontWeight:700, height:'40px', justifyContent:'center', width:'40px' })),\n      div({ color:'#71717a', fontSize:'32px', fontWeight:700 }, [p.brand])\n    ])\n  ]);\n}\n\nexport function editorialTemplate(p: Resolved<EditorialProps>): OgNode {\n  return div({ backgroundColor:'#f5f1e9', color:'#0a0a0a', display:'flex', flexDirection:'column', height:'100%', justifyContent:'space-between', overflow:'hidden', padding:'80px', position:'relative', width:'100%' }, [\n    div({ bottom:'-60px', color:'rgba(10,10,10,0.05)', display:'flex', fontSize:'420px', fontWeight:800, letterSpacing:'-0.04em', lineHeight:1, position:'absolute', right:'-20px' }, [p.ghost || p.title.split(' ')[0]]),\n    div({ alignItems:'center', alignSelf:'flex-start', backgroundColor:'rgba(225,29,72,0.15)', borderRadius:'999px', color:'#e11d48', display:'flex', fontSize:'26px', fontWeight:700, letterSpacing:'0.04em', padding:'10px 24px', textTransform:'uppercase' }, [p.kicker]),\n    div({ display:'flex', fontSize:p.title.length > 36 ? 96 : 120, fontWeight:800, letterSpacing:'-0.04em', lineHeight:0.98, maxWidth:'1000px' }, [p.title]),\n    div({ alignItems:'center', borderTop:'2px solid rgba(10,10,10,0.15)', display:'flex', justifyContent:'space-between', paddingTop:'28px' }, [\n      div({ alignItems:'center', display:'flex', gap:'12px' }, [\n        imgOr(p.logo,32,32,{ borderRadius:'6px', objectFit:'contain' },div({ alignItems:'center', backgroundColor:'#e11d48', borderRadius:'6px', color:'#fff', display:'flex', fontSize:'16px', fontWeight:700, height:'32px', justifyContent:'center', width:'32px' })),\n        div({ display:'flex', fontSize:'32px', fontWeight:700 }, [p.brand])\n      ]),\n      div({ color:'#52525b', display:'flex', fontSize:'30px' }, [p.meta])\n    ])\n  ]);\n}\n\nexport function eventTemplate(p: Resolved<EventProps>): OgNode {\n  const calendar = svg({ fill:'none', height:30, stroke:'#f59e0b', 'stroke-linecap':'round', 'stroke-linejoin':'round', 'stroke-width':2, viewBox:'0 0 24 24', width:30 }, [node('rect',undefined,undefined,{height:18,rx:2,width:18,x:3,y:4}),path('M16 2v4M8 2v4M3 10h18')]);\n  return div({ backgroundColor:'#0a0a0a', backgroundImage:'radial-gradient(circle at 100% 0%, rgba(245,158,11,0.2), transparent 55%)', color:'#fafafa', display:'flex', flexDirection:'column', height:'100%', justifyContent:'space-between', padding:'80px', width:'100%' }, [\n    div({ alignItems:'center', display:'flex', justifyContent:'space-between' }, [\n      div({ alignItems:'center', backgroundColor:'rgba(245,158,11,0.15)', border:'1px solid rgba(245,158,11,0.4)', borderRadius:'999px', color:'#f59e0b', display:'flex', fontSize:'26px', fontWeight:600, gap:'12px', letterSpacing:'0.04em', padding:'10px 22px', textTransform:'uppercase' }, [div({ backgroundColor:'#f59e0b', borderRadius:'999px', height:'12px', width:'12px' }),p.label]),\n      div({ alignItems:'center', display:'flex', gap:'12px' }, [imgOr(p.logo,40,40,{borderRadius:'8px',objectFit:'contain'},div({alignItems:'center',backgroundColor:'#f59e0b',borderRadius:'8px',color:'#0a0a0a',display:'flex',fontSize:'20px',fontWeight:700,height:'40px',justifyContent:'center',width:'40px'})),div({color:'#a1a1aa',fontSize:'28px',fontWeight:600},[p.brand])])\n    ]),\n    div({ display:'flex', fontSize:p.title.length > 40 ? 72 : 88, fontWeight:700, letterSpacing:'-0.03em', lineHeight:1.02, maxWidth:'1000px' }, [p.title]),\n    div({ alignItems:'center', display:'flex', gap:'20px' }, [div({alignItems:'center',display:'flex',fontSize:'30px',fontWeight:600,gap:'14px'},[calendar,p.date]),div({color:'#52525b',display:'flex',fontSize:'30px'},['·']),div({color:'#a1a1aa',display:'flex',fontSize:'30px'},[p.location])])\n  ]);\n}\n\nexport function gridTemplate(p: Resolved<GridProps>): OgNode {\n  return div({ backgroundColor:'#0a0a0a', color:'#ffffff', display:'flex', height:'100%', position:'relative', width:'100%' }, [\n    div({borderLeft:'1px dashed #44403c',bottom:0,left:'64px',position:'absolute',top:0,width:'1px'}), div({borderLeft:'1px dashed #44403c',bottom:0,position:'absolute',right:'64px',top:0,width:'1px'}),\n    div({borderTop:'1px dashed #44403c',height:'1px',left:0,position:'absolute',right:0,top:'64px'}), div({borderTop:'1px dashed #44403c',bottom:'64px',height:'1px',left:0,position:'absolute',right:0}),\n    div({bottom:'128px',display:'flex',flexDirection:'column',justifyContent:'center',left:'128px',position:'absolute',right:'128px',top:'128px',width:'896px'},[\n      div({display:'flex',flexGrow:1,fontSize:p.title.length > 20 ? 64 : 80,fontWeight:600,letterSpacing:'-0.04em',lineHeight:1.1,textWrap:'balance'},[p.title]),\n      div({color:'#a8a29e',display:'flex',flexGrow:1,fontSize:'40px',fontWeight:500,lineHeight:1.5,marginTop:'24px',textWrap:'balance'},[p.description])\n    ]),\n    div({alignItems:'center',bottom:'96px',display:'flex',gap:'14px',position:'absolute',right:'96px'},[imgOr(p.logo,48,48,{borderRadius:'12px',objectFit:'contain'},div({alignItems:'center',backgroundColor:'#fff',borderRadius:'12px',color:'#0a0a0a',display:'flex',fontSize:'26px',fontWeight:800,height:'48px',justifyContent:'center',width:'48px'})),span({fontSize:'30px',fontWeight:600},[p.brand])])\n  ]);\n}\n\nexport function logoTemplate(p: Resolved<LogoProps>): OgNode {\n  const isColor = p.background.startsWith('#');\n  return div({ alignItems:'center', backgroundColor:isColor ? p.background : '#09090b', backgroundImage:isColor ? 'radial-gradient(circle at 50% 50%, rgba(124,58,237,0.2), transparent 60%)' : p.background, color:'#fafafa', display:'flex', flexDirection:'column', height:'100%', justifyContent:'center', width:'100%' }, [\n    imgOr(p.logo,140,140,{borderRadius:'28px',objectFit:'contain'},div({alignItems:'center',backgroundColor:'#7c3aed',borderRadius:'28px',boxShadow:'0 24px 80px rgba(124,58,237,0.33)',color:'#fff',display:'flex',fontSize:'72px',fontWeight:800,height:'140px',justifyContent:'center',width:'140px'},[p.monogram])),\n    div({display:'flex',fontSize:'96px',fontWeight:800,letterSpacing:'-0.04em',marginTop:'44px'},[p.brand]),\n    ...(p.tagline ? [div({color:'#a1a1aa',display:'flex',fontSize:'32px',marginTop:'16px'},[p.tagline])] : [])\n  ]);\n}\n\nexport function ownerTemplate(p: Resolved<OwnerProps>): OgNode {\n  return div({ backgroundColor:'#f5f5f5', color:'#1a1a1a', display:'flex', flexDirection:'column', height:'100%', padding:'8px', width:'100%' }, [\n    div({ backgroundColor:'#ffffff', borderRadius:'56px', display:'flex', flexDirection:'column', height:'100%', overflow:'hidden', padding:'48px', position:'relative', width:'100%' }, [\n      div({color:'#a3a3a3',display:'flex',fontSize:'64px',fontWeight:600,letterSpacing:'-0.03em',lineHeight:1.05},[p.eyebrow]),\n      div({display:'flex',fontSize:'64px',fontWeight:600,letterSpacing:'-0.03em',lineHeight:1.05,maxWidth:'800px'},[p.title]),\n      div({alignItems:'flex-end',bottom:'0px',display:'flex',gap:'16px',left:'48px',position:'absolute',right:'48px'},p.images.map((src,i)=>\n        div({borderRadius:'24px 24px 0 0',display:'flex',flex:1,height:i===1?'300px':'260px',overflow:'hidden'},[image(src,undefined,undefined,{borderRadius:'24px 24px 0 0',height:'100%',objectFit:'cover',width:'100%'})])\n      )),\n      div({alignItems:'center',display:'flex',gap:'8px',position:'absolute',right:'36px',top:'36px'},[\n        imgOr(p.logo,32,32,{borderRadius:'8px',objectFit:'contain'},div({backgroundColor:'#1a1a1a',borderRadius:'8px',height:'32px',width:'32px'})),\n        div({fontSize:'28px',fontWeight:600,letterSpacing:'-0.03em'},[p.brand])\n      ])\n    ])\n  ]);\n}\n\nexport function photoTemplate(p: Resolved<PhotoProps>): OgNode {\n  const fallback='linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #7c3aed 100%)';\n  return div({backgroundColor:'#0a0a0a',backgroundImage:p.image?`url(${p.image})`:fallback,backgroundPosition:'center',backgroundSize:'1200px 630px',color:'#fff',display:'flex',flexDirection:'column',height:'100%',justifyContent:'flex-end',padding:'80px',position:'relative',width:'100%'},[\n    div({backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.85) 100%)',bottom:0,left:0,position:'absolute',right:0,top:0}),\n    div({alignSelf:'flex-start',backgroundColor:'rgba(255,255,255,0.12)',border:'1px solid rgba(255,255,255,0.4)',borderRadius:'999px',display:'flex',fontSize:'26px',fontWeight:600,letterSpacing:'0.04em',padding:'10px 22px',textTransform:'uppercase'},[p.label]),\n    div({display:'flex',fontSize:p.title.length>36?72:88,fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.02,marginTop:'28px',maxWidth:'1000px',textShadow:'0 2px 24px rgba(0,0,0,0.5)'},[p.title]),\n    div({alignItems:'center',display:'flex',gap:'12px',marginTop:'32px'},[\n      imgOr(p.logo,36,36,{borderRadius:'8px',objectFit:'contain'},div({alignItems:'center',backgroundColor:'rgba(255,255,255,0.2)',borderRadius:'8px',color:'#fff',display:'flex',fontSize:'16px',fontWeight:700,height:'36px',justifyContent:'center',width:'36px'})),\n      div({color:'rgba(255,255,255,0.85)',fontSize:'28px',fontWeight:600},[p.brand])\n    ])\n  ]);\n}\n\nexport function productTemplate(p: Resolved<ProductProps>): OgNode {\n  return div({backgroundColor:'#09090b',color:'#fafafa',display:'flex',height:'100%',padding:'72px',width:'100%'},[\n    div({display:'flex',flex:1,flexDirection:'column',justifyContent:'space-between',paddingRight:'56px'},[\n      div({alignItems:'center',display:'flex',gap:'14px'},[imgOr(p.logo,32,32,{borderRadius:'10px',objectFit:'contain'},div({backgroundColor:'#6366f1',borderRadius:'10px',height:'32px',width:'32px'})),div({display:'flex',fontSize:'28px',fontWeight:600},[p.brand])]),\n      div({display:'flex',flexDirection:'column'},[\n        div({display:'flex',fontSize:p.title.length>28?64:76,fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.05,maxWidth:'560px'},[p.title]),\n        div({color:'#a1a1aa',display:'flex',fontSize:'30px',lineHeight:1.4,marginTop:'24px',maxWidth:'520px'},[p.description])\n      ]),\n      div({alignItems:'center',alignSelf:'flex-start',backgroundColor:'#6366f1',borderRadius:'999px',color:'#fff',display:'flex',fontSize:'32px',fontWeight:700,padding:'14px 32px'},[p.price])\n    ]),\n    div({alignItems:'center',backgroundColor:'#18181b',backgroundImage:p.image?`url(${p.image})`:'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',backgroundPosition:'center',backgroundSize:'486px 486px',border:'1px solid rgba(250,250,250,0.1)',borderRadius:'28px',display:'flex',height:'100%',justifyContent:'center',width:'486px'})\n  ]);\n}\n\nexport function profileTemplate(p: Resolved<ProfileProps>): OgNode {\n  return div({alignItems:'center',backgroundColor:'#18181b',backgroundImage:'radial-gradient(circle at 0% 100%, rgba(244,63,94,0.18), transparent 55%)',color:'#fafafa',display:'flex',gap:'64px',height:'100%',padding:'80px',width:'100%'},[\n    p.avatar?image(p.avatar,300,300,{border:'4px solid rgba(250,250,250,0.15)',borderRadius:'999px'}):div({alignItems:'center',backgroundColor:'#f43f5e',border:'4px solid rgba(250,250,250,0.15)',borderRadius:'999px',color:'#fff',display:'flex',flexShrink:0,fontSize:'120px',fontWeight:700,height:'300px',justifyContent:'center',width:'300px'},[initials(p.name)]),\n    div({display:'flex',flexDirection:'column'},[\n      div({display:'flex',fontSize:'72px',fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.05},[p.name]),\n      div({color:'#f43f5e',display:'flex',fontSize:'34px',fontWeight:600,marginTop:'12px'},[p.role]),\n      div({color:'#a1a1aa',display:'flex',fontSize:'28px',lineHeight:1.4,marginTop:'24px',maxWidth:'560px'},[p.bio]),\n      div({alignItems:'center',alignSelf:'flex-start',backgroundColor:'rgba(250,250,250,0.06)',border:'1px solid rgba(250,250,250,0.12)',borderRadius:'999px',color:'#d4d4d8',display:'flex',fontSize:'26px',fontWeight:500,marginTop:'32px',padding:'10px 24px'},[p.website])\n    ])\n  ]);\n}\n\nexport function quoteTemplate(p: Resolved<QuoteProps>): OgNode {\n  return div({backgroundColor:'#18181b',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',justifyContent:'center',padding:'96px',width:'100%'},[\n    div({color:'#f472b6',display:'flex',fontSize:'140px',fontWeight:800,lineHeight:0.8},['“']),\n    div({display:'flex',fontSize:p.quote.length>90?52:64,fontWeight:600,letterSpacing:'-0.02em',lineHeight:1.2,marginTop:'8px',maxWidth:'1000px'},[p.quote]),\n    div({alignItems:'center',display:'flex',gap:'20px',marginTop:'56px'},[\n      p.avatar?image(p.avatar,76,76,{borderRadius:'999px'}):div({alignItems:'center',backgroundColor:'#f472b6',borderRadius:'999px',color:'#18181b',display:'flex',fontSize:'32px',fontWeight:700,height:'76px',justifyContent:'center',width:'76px'},[initials(p.author)]),\n      div({display:'flex',flexDirection:'column'},[div({display:'flex',fontSize:'32px',fontWeight:600},[p.author]),div({color:'#a1a1aa',display:'flex',fontSize:'26px'},[p.handle])])\n    ])\n  ]);\n}\n\nexport function shadcnRegistry1Template(p: Resolved<ShadcnRegistry1Props>): OgNode {\n  return div({backgroundColor:'#09090b',backgroundImage:'radial-gradient(ellipse at 70% 80%, rgba(120,50,60,0.15), transparent 60%), radial-gradient(ellipse at 20% 20%, rgba(60,60,80,0.1), transparent 50%)',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',justifyContent:'space-between',padding:'72px',position:'relative',width:'100%'},[\n    div({alignItems:'center',display:'flex',justifyContent:'space-between',width:'100%'},[\n      div({alignItems:'center',display:'flex',gap:'16px'},[imgOr(p.logo,48,48,{borderRadius:'12px',objectFit:'contain'},div({backgroundColor:'#22d3ee',borderRadius:'999px',display:'flex',height:'48px',width:'48px'})),div({fontSize:'32px',fontWeight:600,letterSpacing:'-0.01em'},[p.name])]),\n      div({color:'#71717a',fontSize:'28px',fontWeight:500},[p.url])\n    ]),\n    div({display:'flex',flexDirection:'column',gap:'24px',marginTop:'-40px'},[\n      div({display:'flex',fontSize:p.url.length>20?96:120,fontWeight:700,letterSpacing:'-0.04em',lineHeight:1,textWrap:'balance'},[p.url]),\n      div({color:'#a1a1aa',display:'flex',fontSize:'36px',fontWeight:400,lineHeight:1.3,maxWidth:'800px',textWrap:'balance'},[p.description])\n    ]),\n    ...(p.items.length ? [div({alignItems:'center',display:'flex',gap:'16px'},p.items.map(item=>div({backgroundColor:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'8px',color:'#d4d4d8',display:'flex',fontSize:'24px',fontWeight:500,padding:'12px 20px'},[item])))] : [])\n  ]);\n}\n\nexport function shadcnRegistry2Template(p: Resolved<ShadcnRegistry2Props>): OgNode {\n  const bolt=svg({width:32,height:32,viewBox:'0 0 24 24',fill:'none',stroke:'#ffffff','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'},[path('M13 2L3 14h9l-1 8 10-12h-9l1-8z')]);\n  return div({backgroundColor:'#ffffff',color:'#0a0a0a',display:'flex',flexDirection:'column',height:'100%',justifyContent:'center',padding:'80px',position:'relative',width:'100%'},[\n    div({alignItems:'center',display:'flex',gap:'20px',marginBottom:'64px'},[\n      p.logo?image(p.logo,64,64,{objectFit:'contain'}):div({alignItems:'center',backgroundColor:p.accent,borderRadius:'16px',display:'flex',height:'64px',justifyContent:'center',width:'64px'},[bolt]),\n      div({alignItems:'center',display:'flex',gap:'20px'},[div({fontSize:'40px',fontWeight:700,letterSpacing:'-0.02em'},[p.name]),div({color:'#d4d4d8',fontSize:'36px',fontWeight:500},['|']),div({color:'#a1a1aa',fontSize:'36px',fontWeight:500},[p.category])])\n    ]),\n    div({display:'flex',fontSize:p.title.length>50?64:72,fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.1,maxWidth:'900px',textWrap:'balance'},[p.title]),\n    ...(p.items.length?[div({alignItems:'center',color:'#71717a',display:'flex',fontSize:'32px',fontWeight:500,gap:'24px',marginTop:'48px'},p.items.map((item,i)=>div({alignItems:'center',display:'flex',gap:'24px'},[span({},[item]),...(i<p.items.length-1?[span({color:'#d4d4d8'},['•'])]:[])])))] : [])\n  ]);\n}\n\nexport function shadcnRegistry3Template(p: Resolved<ShadcnRegistry3Props>): OgNode {\n  return div({backgroundColor:'#0a0a0a',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',overflow:'hidden',padding:'80px',position:'relative',width:'100%'},[\n    div({bottom:'-80px',color:'rgba(255,255,255,0.04)',display:'flex',fontSize:'320px',fontWeight:800,left:'40px',letterSpacing:'-0.04em',lineHeight:0.85,position:'absolute'},[p.ghost||p.title.split(' ')[0]]),\n    div({alignItems:'flex-start',display:'flex',justifyContent:'space-between',position:'relative'},[\n      div({display:'flex',flexDirection:'column',fontSize:p.title.length>60?52:64,fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.1,maxWidth:'800px',textWrap:'balance'},[p.title,...(p.credit?[div({color:'#52525b',fontSize:'24px',fontWeight:400,marginTop:'24px'},[p.credit])]:[])]),\n      div({alignItems:'center',border:'3px solid rgba(255,255,255,0.2)',borderRadius:'999px',display:'flex',flexShrink:0,height:'160px',justifyContent:'center',marginLeft:'40px',overflow:'hidden',width:'160px'},[\n        p.logo?image(p.logo,140,140,{borderRadius:'999px',objectFit:'cover'}):div({backgroundImage:'linear-gradient(135deg, #60EFFF, #0061FF)',borderRadius:'999px',height:'140px',width:'140px'})\n      ])\n    ])\n  ]);\n}\n\nexport function shadcnRegistry4Template(p: Resolved<ShadcnRegistry4Props>): OgNode {\n  return div({alignItems:'center',backgroundColor:'#0a0a0a',backgroundImage:'radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.1), transparent 70%)',backgroundSize:'100% 100%',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',justifyContent:'center',padding:'80px',position:'relative',width:'100%'},[\n    div({alignItems:'center',display:'flex',gap:'16px',marginBottom:'48px'},[imgOr(p.logo,56,56,{objectFit:'contain'},div({backgroundColor:'rgba(255,255,255,0.3)',borderRadius:'12px',height:'56px',width:'56px'})),div({fontSize:'40px',fontWeight:600,letterSpacing:'-0.02em'},[p.name])]),\n    div({display:'flex',flexWrap:'wrap',fontSize:p.title.length>60?52:64,fontWeight:700,justifyContent:'center',letterSpacing:'-0.03em',lineHeight:1.15,maxWidth:'900px',textAlign:'center',textWrap:'balance'},p.title.split(' ').map((word,i)=>span({color:i%2===0?'#71717a':'#fafafa',marginRight:'0.3em'},[word]))),\n    ...(p.url?[div({color:'#52525b',fontSize:'24px',fontWeight:500,letterSpacing:'0.02em',marginTop:'48px'},[p.url])]:[])\n  ]);\n}\n\nconst frame = (style:'dashed'|'solid', inset:string, color:string): OgNode[] => [\n  div({borderLeft:`1px ${style} ${color}`,bottom:0,left:inset,position:'absolute',top:0,width:'1px'}),\n  div({borderLeft:`1px ${style} ${color}`,bottom:0,position:'absolute',right:inset,top:0,width:'1px'}),\n  div({borderTop:`1px ${style} ${color}`,height:'1px',left:0,position:'absolute',right:0,top:inset}),\n  div({borderTop:`1px ${style} ${color}`,bottom:inset,height:'1px',left:0,position:'absolute',right:0})\n];\n\nexport function shadcnRegistry5Template(p: Resolved<ShadcnRegistry5Props>): OgNode {\n  return div({backgroundColor:'#fafafa',color:'#0a0a0a',display:'flex',height:'100%',position:'relative',width:'100%'},[\n    ...frame('dashed','64px','#44403c'),\n    div({alignItems:'center',bottom:'128px',display:'flex',flexDirection:'column',justifyContent:'center',left:'128px',position:'absolute',right:'128px',textAlign:'center',top:'128px',width:'896px'},[\n      div({alignItems:'center',display:'flex',gap:'12px',marginBottom:'32px'},[imgOr(p.logo,40,40,{objectFit:'contain'},div({backgroundColor:'rgba(0,0,0,0.3)',borderRadius:'12px',height:'40px',width:'40px'})),div({color:'#18181b',fontSize:'28px',fontWeight:600},[p.name])]),\n      div({display:'flex',fontSize:p.title.length>30?72:88,fontWeight:800,letterSpacing:'-0.04em',lineHeight:1,textWrap:'balance'},[p.title]),\n      ...(p.description?[div({color:'#71717a',display:'flex',fontSize:'28px',fontWeight:400,lineHeight:1.5,marginTop:'32px',textWrap:'balance'},[p.description])]:[])\n    ])\n  ]);\n}\n\nexport function shadcnRegistry6Template(p: Resolved<ShadcnRegistry6Props>): OgNode {\n  return div({backgroundColor:'#000000',color:'#f4f4f5',display:'flex',height:'100%',position:'relative',width:'100%'},[\n    ...frame('solid','48px','#27272a'),\n    div({alignItems:'center',display:'flex',gap:'16px',left:'72px',position:'absolute',top:'72px'},[imgOr(p.logo,64,64,{objectFit:'contain'},div({backgroundColor:'#fff',borderRadius:'12px',height:'64px',width:'64px'})),span({fontSize:'32px',fontWeight:600,letterSpacing:'-0.02em'},[p.brand])]),\n    div({borderTop:'2px solid #27272a',bottom:'96px',display:'flex',flexDirection:'column',justifyContent:'flex-end',left:0,position:'absolute',right:0,top:'160px'},[\n      div({borderBottom:'2px solid #27272a',borderTop:'2px solid #27272a',display:'flex',fontSize:p.title.length>60?52:64,fontWeight:600,letterSpacing:'-0.025em',lineHeight:1,padding:'0px 72px',textWrap:'balance'},[p.title]),\n      ...(p.description?[div({borderBottom:'2px solid #27272a',color:'#a1a1aa',display:'flex',fontSize:'28px',fontWeight:400,lineHeight:1.25,padding:'32px 72px',textWrap:'balance'},[p.description])]:[])\n    ])\n  ]);\n}\n\nexport function shioriTemplate(p: Resolved<ShioriProps>): OgNode {\n  return div({backgroundColor:p.background,display:'flex',flexDirection:'column',height:'100%',padding:'60px',position:'relative',width:'100%'},[\n    p.logo?image(p.logo,96,96,{borderRadius:'50%',objectFit:'contain'}):div({backgroundImage:'linear-gradient(135deg, #ff7a18, #ffb347)',borderRadius:'50%',height:'96px',width:'96px'}),\n    div({bottom:'60px',display:'flex',justifyContent:'space-between',left:'60px',position:'absolute',right:'60px'},[\n      div({color:p.brandColor,flex:0.25,fontSize:'64px',fontWeight:600,letterSpacing:'-0.03em',lineHeight:1.3},[p.brand]),\n      div({color:p.titleColor,flex:0.6,fontSize:'64px',fontWeight:600,letterSpacing:'-0.03em',lineHeight:1.3},[p.title]),\n      div({flex:0.25})\n    ])\n  ]);\n}\n\nexport function showcaseTemplate(p: Resolved<ShowcaseProps>): OgNode {\n  const bars=[0.4,0.65,0.5,0.8,0.55,0.95,0.7,0.85];\n  return div({alignItems:'center',backgroundColor:'#09090b',backgroundImage:'radial-gradient(circle at 50% 0%, rgba(99,102,241,0.2), transparent 55%)',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',overflow:'hidden',paddingTop:'64px',width:'100%'},[\n    div({display:'flex',fontSize:'60px',fontWeight:700,letterSpacing:'-0.03em',textAlign:'center'},[p.title]),\n    div({color:'#a1a1aa',display:'flex',fontSize:'28px',marginTop:'14px',maxWidth:'760px',textAlign:'center'},[p.subtitle]),\n    div({backgroundColor:'#0a0a0a',border:'1px solid rgba(250,250,250,0.12)',borderRadius:'20px 20px 0 0',boxShadow:'0 -10px 60px rgba(99,102,241,0.25)',display:'flex',flexDirection:'column',height:'360px',marginTop:'48px',width:'1000px'},[\n      div({alignItems:'center',borderBottom:'1px solid rgba(250,250,250,0.08)',display:'flex',gap:'10px',padding:'20px 24px'},[\n        ...['#ef4444','#f59e0b','#22c55e'].map(c=>div({backgroundColor:c,borderRadius:'999px',height:'14px',width:'14px'})),\n        div({backgroundColor:'rgba(250,250,250,0.06)',borderRadius:'8px',color:'#71717a',display:'flex',fontSize:'20px',marginLeft:'20px',padding:'8px 20px'},[p.url])\n      ]),\n      div({display:'flex',flex:1},[\n        div({borderRight:'1px solid rgba(250,250,250,0.08)',display:'flex',flexDirection:'column',gap:'18px',padding:'28px 24px',width:'220px'},[0.9,0.6,0.7,0.5].map((w,i)=>div({backgroundColor:i===0?p.accent:'rgba(250,250,250,0.12)',borderRadius:'8px',height:'20px',width:`${w*100}%`}))),\n        div({display:'flex',flex:1,flexDirection:'column',padding:'28px 36px'},[\n          div({color:'#71717a',display:'flex',fontSize:'22px'},['Revenue']),\n          div({display:'flex',fontSize:'56px',fontWeight:700,letterSpacing:'-0.02em',marginTop:'4px'},['$346,723']),\n          div({alignItems:'flex-end',display:'flex',flex:1,gap:'18px',marginTop:'24px'},bars.map((h,i)=>div({backgroundColor:i%2===0?p.accent:'rgba(250,250,250,0.18)',borderRadius:'6px 6px 0 0',display:'flex',flex:1,height:`${h*100}%`})))\n        ])\n      ])\n    ])\n  ]);\n}\n\nexport function statTemplate(p: Resolved<StatProps>): OgNode {\n  const arrow=svg({fill:'none',height:26,stroke:'#22c55e','stroke-linecap':'round','stroke-linejoin':'round','stroke-width':3,viewBox:'0 0 24 24',width:26},[path('M7 17 17 7M9 7h8v8')]);\n  return div({backgroundColor:'#09090b',backgroundImage:'radial-gradient(circle at 50% 120%, rgba(34,197,94,0.18), transparent 55%)',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',justifyContent:'center',padding:'96px',position:'relative',width:'100%'},[\n    div({color:'#a1a1aa',display:'flex',fontSize:'30px',fontWeight:600,letterSpacing:'0.04em',textTransform:'uppercase'},[p.label]),\n    div({alignItems:'flex-end',display:'flex',gap:'28px',marginTop:'20px'},[\n      div({display:'flex',fontSize:'200px',fontWeight:800,letterSpacing:'-0.04em',lineHeight:1},[p.value]),\n      ...(p.trend?[div({alignItems:'center',backgroundColor:'rgba(34,197,94,0.15)',borderRadius:'999px',color:'#22c55e',display:'flex',fontSize:'34px',fontWeight:700,gap:'10px',marginBottom:'36px',padding:'10px 22px'},[arrow,p.trend])]:[])\n    ]),\n    div({color:'#d4d4d8',display:'flex',fontSize:'34px',lineHeight:1.4,marginTop:'28px',maxWidth:'820px'},[p.caption]),\n    div({alignItems:'center',bottom:'56px',color:'#71717a',display:'flex',fontSize:'26px',fontWeight:600,gap:'12px',position:'absolute'},[imgOr(p.logo,24,24,{borderRadius:'6px',objectFit:'contain'},div({backgroundColor:'#22c55e',borderRadius:'8px',height:'24px',width:'24px'})),p.brand])\n  ]);\n}\n\nexport function terminalTemplate(p: Resolved<TerminalProps>): OgNode {\n  return div({backgroundColor:'#0a0a0a',color:'#fafafa',display:'flex',flexDirection:'column',height:'100%',justifyContent:'space-between',padding:'80px',width:'100%'},[\n    div({alignItems:'center',display:'flex',gap:'16px'},[imgOr(p.logo,44,44,{borderRadius:'8px',objectFit:'contain'},div({alignItems:'center',backgroundColor:'#22c55e',borderRadius:'8px',color:'#fff',display:'flex',fontSize:'20px',fontWeight:700,height:'44px',justifyContent:'center',width:'44px'})),div({display:'flex',fontSize:'34px',fontWeight:700},[p.brand])]),\n    div({display:'flex',flexDirection:'column'},[\n      div({display:'flex',fontSize:p.title.length>28?84:104,fontWeight:800,letterSpacing:'-0.02em',lineHeight:1,textTransform:'uppercase'},[p.title]),\n      ...(p.caption?[div({alignSelf:'flex-start',backgroundColor:'rgba(250,250,250,0.06)',border:'1px solid rgba(250,250,250,0.12)',borderRadius:'10px',color:'#22c55e',display:'flex',fontSize:'30px',fontWeight:600,marginTop:'36px',padding:'12px 24px'},[p.caption])]:[])\n    ])\n  ]);\n}\n"
+        },
+        {
+          "path": "src/lib/templates/node.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/templates/node.ts",
+          "content": "export type OgTag = 'div' | 'span' | 'img' | 'svg' | 'path' | 'rect';\n\nexport type OgStyleValue = string | number | undefined;\nexport type OgStyle = Record<string, OgStyleValue>;\nexport type OgAttribute = string | number | undefined;\n\nexport interface OgNode {\n  tag: OgTag;\n  style?: OgStyle;\n  attrs?: Record<string, OgAttribute>;\n  children?: Array<OgNode | string>;\n}\n\nexport const node = (\n  tag: OgTag,\n  style?: OgStyle,\n  children?: Array<OgNode | string>,\n  attrs?: Record<string, OgAttribute>\n): OgNode => ({ tag, ...(style ? { style } : {}), ...(attrs ? { attrs } : {}), ...(children ? { children } : {}) });\n\nexport const div = (style: OgStyle, children: Array<OgNode | string> = []): OgNode =>\n  node('div', style, children);\n\nexport const span = (style: OgStyle, children: Array<OgNode | string> = []): OgNode =>\n  node('span', style, children);\n\nexport const image = (src: string, width?: number, height?: number, style?: OgStyle): OgNode =>\n  node('img', style, undefined, { src, width, height });\n\nconst unitless = new Set([\n  'flex',\n  'flexGrow',\n  'flexShrink',\n  'fontWeight',\n  'lineHeight',\n  'opacity',\n  'strokeWidth'\n]);\n\nconst kebab = (name: string) => name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);\n\nexport function serializeStyle(style: OgStyle | undefined, tag?: OgTag): string | undefined {\n  const normalized = tag === 'div' && style?.display === undefined ? { ...style, display: 'flex' } : style;\n  if (!normalized) return undefined;\n  return Object.entries(normalized)\n    .filter((entry): entry is [string, string | number] => entry[1] !== undefined)\n    .map(([key, value]) => `${kebab(key)}:${typeof value === 'number' && !unitless.has(key) ? `${value}px` : value}`)\n    .join(';');\n}\n"
+        },
+        {
+          "path": "src/lib/templates/simple.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/templates/simple.ts",
+          "content": "import type { SimpleProps } from '../registry.js';\nimport { div, image, type OgNode } from './node.js';\n\nexport function simpleTemplate(props: Required<Omit<SimpleProps, 'overlay'>>): OgNode {\n  const { label, title, description, brand, logo } = props;\n  return div(\n    {\n      alignItems: 'center',\n      backgroundColor: '#09090b',\n      backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(124,58,237,0.18), transparent 55%)',\n      color: '#fafafa',\n      display: 'flex',\n      flexDirection: 'column',\n      height: '100%',\n      justifyContent: 'center',\n      padding: '96px',\n      position: 'relative',\n      width: '100%'\n    },\n    [\n      div(\n        {\n          alignItems: 'center',\n          backgroundColor: 'rgba(250,250,250,0.04)',\n          border: '1px solid rgba(250,250,250,0.12)',\n          borderRadius: '999px',\n          color: '#d4d4d8',\n          display: 'flex',\n          fontSize: '24px',\n          fontWeight: 500,\n          gap: '12px',\n          letterSpacing: '0.04em',\n          padding: '8px 18px',\n          textTransform: 'uppercase'\n        },\n        [div({ backgroundColor: '#7c3aed', borderRadius: '999px', height: '10px', width: '10px' }), label]\n      ),\n      div(\n        {\n          display: 'flex',\n          fontSize: title.length > 40 ? 64 : 76,\n          fontWeight: 700,\n          letterSpacing: '-0.03em',\n          lineHeight: 1.05,\n          marginTop: '40px',\n          maxWidth: '900px',\n          textAlign: 'center'\n        },\n        [title]\n      ),\n      div(\n        {\n          color: '#a1a1aa',\n          display: 'flex',\n          fontSize: '32px',\n          lineHeight: 1.4,\n          marginTop: '28px',\n          maxWidth: '760px',\n          textAlign: 'center'\n        },\n        [description]\n      ),\n      div(\n        {\n          alignItems: 'center',\n          bottom: '56px',\n          color: '#fafafa',\n          display: 'flex',\n          fontSize: '26px',\n          fontWeight: 600,\n          gap: '12px',\n          position: 'absolute'\n        },\n        [\n          logo\n            ? image(logo, 28, 28, { borderRadius: '6px', objectFit: 'contain' })\n            : div({ backgroundColor: '#7c3aed', borderRadius: '8px', height: '28px', width: '28px' }),\n          brand\n        ]\n      )\n    ]\n  );\n}\n"
+        },
+        {
+          "path": "src/lib/types.ts",
+          "type": "registry:lib",
+          "target": "ogimagecn/types.ts",
+          "content": "import type { Component } from 'svelte';\nimport type { Font as SatoriFont, SatoriNode } from 'satori';\n\nexport const OG_WIDTH = 1200;\nexport const OG_HEIGHT = 630;\n\nexport type OgComponent<Props extends Record<string, unknown> = Record<string, unknown>> = Component<Props>;\n\n/** Minimal framework-neutral node shape accepted by Satori. */\nexport interface SatoriVNode {\n  type: string;\n  props: {\n    style?: Record<string, unknown>;\n    children?: string | SatoriVNode | Array<string | SatoriVNode | undefined>;\n    [prop: string]: unknown;\n  };\n}\n\nexport type OgFont = SatoriFont;\n\nexport interface RenderOptions {\n  width?: number;\n  height?: number;\n  fonts?: OgFont[];\n  strict?: boolean;\n  debug?: boolean;\n  embedFont?: boolean;\n  /** Inline images used for graphemes such as emoji. */\n  graphemeImages?: Record<string, string>;\n  /**\n   * Called by Satori for a glyph which is not present in the configured fonts.\n   * Return a data URI for an emoji/image or one or more matching fonts.\n   */\n  loadAdditionalAsset?: (\n    languageCode: string,\n    segment: string\n  ) => Promise<string | Array<OgFont>>;\n  /** Receives each box after Satori has performed layout. */\n  onNodeDetected?: (node: SatoriNode) => void;\n  /** Retain a small, serializable snapshot of computed boxes in the result. */\n  collectNodes?: boolean;\n}\n\nexport interface RenderedNode {\n  left: number;\n  top: number;\n  width: number;\n  height: number;\n  type: string;\n  key?: string | number;\n  textContent?: string;\n}\n\nexport interface RenderedImage {\n  svg: string;\n  width: number;\n  height: number;\n  warnings: readonly string[];\n  nodes: readonly RenderedNode[];\n}\n\nexport interface RenderPngOptions extends RenderOptions {\n  fitTo?: { mode: 'width' | 'height' | 'zoom'; value: number };\n}\n"
+        }
+      ]
+    },
+    {
+      "name": "simple",
+      "title": "Simple",
+      "description": "A minimal, centered Open Graph image with an eyebrow label, title, description, and brand mark.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Simple.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Simple.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { simpleDefaults, type SimpleProps } from '../registry.js';\n  import { simpleTemplate } from '../templates/simple.js';\n\n  let {\n    label = simpleDefaults.label,\n    title = simpleDefaults.title,\n    description = simpleDefaults.description,\n    brand = simpleDefaults.brand,\n    logo = simpleDefaults.logo,\n    overlay\n  }: SimpleProps = $props();\n</script>\n\n<OgNode node={simpleTemplate({ label, title, description, brand, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "title": "Grid",
+      "description": "A framed, technical Open Graph image with a dashed border grid and a corner brand mark.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Grid.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Grid.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { gridDefaults, resolveProps, type GridProps } from '../registry.js';\n  import { gridTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: GridProps = $props();\n  let resolved = $derived(resolveProps(gridDefaults, provided));\n</script>\n<OgNode node={gridTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "blog",
+      "title": "Blog",
+      "description": "An article Open Graph image with a category badge, headline, excerpt, and author row.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Blog.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Blog.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { blogDefaults, resolveProps, type BlogProps } from '../registry.js';\n  import { blogTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: BlogProps = $props();\n  let resolved = $derived(resolveProps(blogDefaults, provided));\n</script>\n<OgNode node={blogTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "changelog",
+      "title": "Changelog",
+      "description": "A release Open Graph image with a version pill, date, title, and a checklist of highlights.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Changelog.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Changelog.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { changelogDefaults, resolveProps, type ChangelogProps } from '../registry.js';\n  import { changelogTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: ChangelogProps = $props();\n  let resolved = $derived(resolveProps(changelogDefaults, provided));\n</script>\n<OgNode node={changelogTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "quote",
+      "title": "Quote",
+      "description": "A testimonial / tweet-style Open Graph image with a large quote and an author row.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Quote.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Quote.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { quoteDefaults, resolveProps, type QuoteProps } from '../registry.js';\n  import { quoteTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: QuoteProps = $props();\n  let resolved = $derived(resolveProps(quoteDefaults, provided));\n</script>\n<OgNode node={quoteTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shadcn-registry-1",
+      "title": "Shadcn Registry 1",
+      "description": "A showcase Open Graph image for shadcn registries with logo, name, URL, description, and tag badges.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/ShadcnRegistry1.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/ShadcnRegistry1.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry1Defaults as defaults, type ShadcnRegistry1Props } from '../registry.js';\n  import { shadcnRegistry1Template } from '../templates/definitions.js';\n  let { name = defaults.name, url = defaults.url, description = defaults.description, logo = defaults.logo,\n    items = defaults.items, overlay }: ShadcnRegistry1Props = $props();\n</script>\n<OgNode node={shadcnRegistry1Template({ name, url, description, logo, items })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shadcn-registry-2",
+      "title": "Shadcn Registry 2",
+      "description": "A clean Open Graph image with a light background, logo, name, category, title, and dot-separated tags.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/ShadcnRegistry2.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/ShadcnRegistry2.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry2Defaults as defaults, type ShadcnRegistry2Props } from '../registry.js';\n  import { shadcnRegistry2Template } from '../templates/definitions.js';\n  let { name = defaults.name, category = defaults.category, title = defaults.title, items = defaults.items,\n    logo = defaults.logo, accent = defaults.accent, overlay }: ShadcnRegistry2Props = $props();\n</script>\n<OgNode node={shadcnRegistry2Template({ name, category, title, items, logo, accent })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shadcn-registry-3",
+      "title": "Shadcn Registry 3",
+      "description": "A bold dark Open Graph image with large title, circular badge, ghost watermark, and credit text.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/ShadcnRegistry3.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/ShadcnRegistry3.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry3Defaults as defaults, type ShadcnRegistry3Props } from '../registry.js';\n  import { shadcnRegistry3Template } from '../templates/definitions.js';\n  let { title = defaults.title, credit = defaults.credit, ghost = defaults.ghost, logo = defaults.logo,\n    overlay }: ShadcnRegistry3Props = $props();\n</script>\n<OgNode node={shadcnRegistry3Template({ title, credit, ghost, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shadcn-registry-4",
+      "title": "Shadcn Registry 4",
+      "description": "A centered dark Open Graph image with logo, name, title, and URL on a subtle dot pattern background.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/ShadcnRegistry4.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/ShadcnRegistry4.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry4Defaults as defaults, type ShadcnRegistry4Props } from '../registry.js';\n  import { shadcnRegistry4Template } from '../templates/definitions.js';\n  let { name = defaults.name, title = defaults.title, url = defaults.url, logo = defaults.logo,\n    overlay }: ShadcnRegistry4Props = $props();\n</script>\n<OgNode node={shadcnRegistry4Template({ name, title, url, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shadcn-registry-5",
+      "title": "Shadcn Registry 5",
+      "description": "A clean light Open Graph image with centered logo, name, title, and description inside a bordered frame.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/ShadcnRegistry5.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/ShadcnRegistry5.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry5Defaults as defaults, type ShadcnRegistry5Props } from '../registry.js';\n  import { shadcnRegistry5Template } from '../templates/definitions.js';\n  let { name = defaults.name, title = defaults.title, description = defaults.description, logo = defaults.logo,\n    overlay }: ShadcnRegistry5Props = $props();\n</script>\n<OgNode node={shadcnRegistry5Template({ name, title, description, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shadcn-registry-6",
+      "title": "Shadcn Registry 6",
+      "description": "A minimal Open Graph image with solid border lines, a logo in the top-left, and title/description at the bottom.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/ShadcnRegistry6.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/ShadcnRegistry6.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry6Defaults as defaults, type ShadcnRegistry6Props } from '../registry.js';\n  import { shadcnRegistry6Template } from '../templates/definitions.js';\n  let { title = defaults.title, description = defaults.description, brand = defaults.brand, logo = defaults.logo,\n    overlay }: ShadcnRegistry6Props = $props();\n</script>\n<OgNode node={shadcnRegistry6Template({ title, description, brand, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "photo",
+      "title": "Photo",
+      "description": "A full-bleed photo Open Graph image with a dark gradient scrim and a bottom-aligned title block.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Photo.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Photo.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { photoDefaults, resolveProps, type PhotoProps } from '../registry.js';\n  import { photoTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: PhotoProps = $props();\n  let resolved = $derived(resolveProps(photoDefaults, provided));\n</script>\n<OgNode node={photoTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "product",
+      "title": "Product",
+      "description": "A two-column product Open Graph image with brand and copy on the left, a product shot on the right, and a price pill.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Product.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Product.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { productDefaults, resolveProps, type ProductProps } from '../registry.js';\n  import { productTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: ProductProps = $props();\n  let resolved = $derived(resolveProps(productDefaults, provided));\n</script>\n<OgNode node={productTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "title": "Profile",
+      "description": "A personal / portfolio Open Graph image with a circular avatar beside a name, role, bio, and website pill.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Profile.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Profile.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { profileDefaults, resolveProps, type ProfileProps } from '../registry.js';\n  import { profileTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: ProfileProps = $props();\n  let resolved = $derived(resolveProps(profileDefaults, provided));\n</script>\n<OgNode node={profileTemplate(resolved)} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "event",
+      "title": "Event",
+      "description": "An event / launch Open Graph image with an eyebrow label, large title, and a date · location footer row.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Event.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Event.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { eventDefaults, type EventProps } from '../registry.js';\n  import { eventTemplate } from '../templates/definitions.js';\n\n  let {\n    label = eventDefaults.label,\n    brand = eventDefaults.brand,\n    title = eventDefaults.title,\n    date = eventDefaults.date,\n    location = eventDefaults.location,\n    logo = eventDefaults.logo,\n    overlay\n  }: EventProps = $props();\n</script>\n\n<OgNode node={eventTemplate({ label, brand, title, date, location, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "stat",
+      "title": "Stat",
+      "description": "A metric / dashboard Open Graph image with an eyebrow label, an oversized number, a trend pill, and a caption.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Stat.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Stat.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { statDefaults, type StatProps } from '../registry.js';\n  import { statTemplate } from '../templates/definitions.js';\n\n  let {\n    label = statDefaults.label,\n    value = statDefaults.value,\n    caption = statDefaults.caption,\n    trend = statDefaults.trend,\n    brand = statDefaults.brand,\n    logo = statDefaults.logo,\n    overlay\n  }: StatProps = $props();\n</script>\n\n<OgNode node={statTemplate({ label, value, caption, trend, brand, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "logo",
+      "title": "Logo",
+      "description": "A centered brand Open Graph image with a logo tile, a large wordmark, and an optional tagline on a soft gradient field.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Logo.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Logo.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { logoDefaults, type LogoProps } from '../registry.js';\n  import { logoTemplate } from '../templates/definitions.js';\n\n  let {\n    brand = logoDefaults.brand,\n    tagline = logoDefaults.tagline,\n    monogram = logoDefaults.monogram,\n    background = logoDefaults.background,\n    logo = logoDefaults.logo,\n    overlay\n  }: LogoProps = $props();\n</script>\n\n<OgNode node={logoTemplate({ brand, tagline, monogram, background, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "terminal",
+      "title": "Terminal",
+      "description": "A minimal, technical Open Graph image with a wordmark and accent side-bar above a large wide-tracked uppercase headline.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Terminal.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Terminal.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { terminalDefaults, type TerminalProps } from '../registry.js';\n  import { terminalTemplate } from '../templates/definitions.js';\n\n  let {\n    brand = terminalDefaults.brand,\n    title = terminalDefaults.title,\n    caption = terminalDefaults.caption,\n    logo = terminalDefaults.logo,\n    overlay\n  }: TerminalProps = $props();\n</script>\n\n<OgNode node={terminalTemplate({ brand, title, caption, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "editorial",
+      "title": "Editorial",
+      "description": "A poster-style Open Graph image with oversized display type and a large faint ghost word set behind the content.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Editorial.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Editorial.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { editorialDefaults, type EditorialProps } from '../registry.js';\n  import { editorialTemplate } from '../templates/definitions.js';\n\n  let {\n    kicker = editorialDefaults.kicker,\n    title = editorialDefaults.title,\n    meta = editorialDefaults.meta,\n    ghost = editorialDefaults.ghost,\n    brand = editorialDefaults.brand,\n    logo = editorialDefaults.logo,\n    overlay\n  }: EditorialProps = $props();\n</script>\n\n<OgNode node={editorialTemplate({ kicker, title, meta, ghost, brand, logo })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "showcase",
+      "title": "Showcase",
+      "description": "A product-showcase Open Graph image with a centered headline above a faux browser window and a minimal dashboard UI.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Showcase.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Showcase.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { showcaseDefaults, type ShowcaseProps } from '../registry.js';\n  import { showcaseTemplate } from '../templates/definitions.js';\n\n  let {\n    title = showcaseDefaults.title,\n    subtitle = showcaseDefaults.subtitle,\n    url = showcaseDefaults.url,\n    accent = showcaseDefaults.accent,\n    overlay\n  }: ShowcaseProps = $props();\n</script>\n\n<OgNode node={showcaseTemplate({ title, subtitle, url, accent })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "shiori",
+      "title": "Shiori",
+      "description": "A clean, minimal Open Graph image with a light cream background, an orange gradient circle logo, and a bold title beside a muted description.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Shiori.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Shiori.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shioriDefaults, type ShioriProps } from '../registry.js';\n  import { shioriTemplate } from '../templates/definitions.js';\n\n  let {\n    background = shioriDefaults.background,\n    brand = shioriDefaults.brand,\n    brandColor = shioriDefaults.brandColor,\n    // Keep no-prop rendering offline and deterministic; explicit props retain the upstream URL.\n    logo = '',\n    title = shioriDefaults.title,\n    titleColor = shioriDefaults.titleColor,\n    overlay\n  }: ShioriProps = $props();\n</script>\n\n<OgNode node={shioriTemplate({ background, brand, brandColor, logo, title, titleColor })} {overlay} />\n"
+        }
+      ]
+    },
+    {
+      "name": "owner",
+      "title": "Owner",
+      "description": "A clean Open Graph image with a light background, eyebrow text, bold headline, and three rounded photos at the bottom.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+      ],
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/lib/components/Owner.svelte",
+          "type": "registry:lib",
+          "target": "ogimagecn/components/Owner.svelte",
+          "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { ownerDefaults, type OwnerProps } from '../registry.js';\n  import { ownerTemplate } from '../templates/definitions.js';\n\n  let { eyebrow = ownerDefaults.eyebrow, title = ownerDefaults.title, brand = ownerDefaults.brand,\n    // Exact remote gallery values remain exported in ownerDefaults. No-prop rendering stays offline.\n    images = [], logo = '', overlay }: OwnerProps = $props();\n</script>\n\n<OgNode node={ownerTemplate({ eyebrow, title, brand, images, logo })} {overlay} />\n"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "quote",
+  "title": "Quote",
+  "description": "A testimonial / tweet-style Open Graph image with a large quote and an author row.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Quote.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Quote.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { quoteDefaults, resolveProps, type QuoteProps } from '../registry.js';\n  import { quoteTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: QuoteProps = $props();\n  let resolved = $derived(resolveProps(quoteDefaults, provided));\n</script>\n<OgNode node={quoteTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

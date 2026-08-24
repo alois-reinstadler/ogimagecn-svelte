@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "photo",
+  "title": "Photo",
+  "description": "A full-bleed photo Open Graph image with a dark gradient scrim and a bottom-aligned title block.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/Photo.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/Photo.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { photoDefaults, resolveProps, type PhotoProps } from '../registry.js';\n  import { photoTemplate } from '../templates/definitions.js';\n  let { overlay, ...provided }: PhotoProps = $props();\n  let resolved = $derived(resolveProps(photoDefaults, provided));\n</script>\n<OgNode node={photoTemplate(resolved)} {overlay} />\n"
+    }
+  ]
+}

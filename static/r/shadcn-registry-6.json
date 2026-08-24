@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+  "name": "shadcn-registry-6",
+  "title": "Shadcn Registry 6",
+  "description": "A minimal Open Graph image with solid border lines, a logo in the top-left, and title/description at the bottom.",
+  "type": "registry:component",
+  "registryDependencies": [
+    "https://alois-reinstadler.github.io/ogimagecn-svelte/r/runtime.json"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "src/lib/components/ShadcnRegistry6.svelte",
+      "type": "registry:lib",
+      "target": "ogimagecn/components/ShadcnRegistry6.svelte",
+      "content": "<script lang=\"ts\">\n  import OgNode from './OgNode.svelte';\n  import { shadcnRegistry6Defaults as defaults, type ShadcnRegistry6Props } from '../registry.js';\n  import { shadcnRegistry6Template } from '../templates/definitions.js';\n  let { title = defaults.title, description = defaults.description, brand = defaults.brand, logo = defaults.logo,\n    overlay }: ShadcnRegistry6Props = $props();\n</script>\n<OgNode node={shadcnRegistry6Template({ title, description, brand, logo })} {overlay} />\n"
+    }
+  ]
+}
