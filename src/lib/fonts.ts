@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import type { OgFont } from './types.js';
 
 const fontUrl = (name: string) => new URL(`./fonts/${name}`, import.meta.url);
@@ -38,7 +39,8 @@ export async function loadFont(
 ): Promise<OgFont> {
   let data: OgFont['data'];
   if (typeof source === 'string' || source instanceof URL) {
-    const url = source instanceof URL ? source : new URL(source);
+    const isBarePath = typeof source === 'string' && !/^[a-z+.-]+:\/\//i.test(source) && !source.startsWith('file:');
+    const url = source instanceof URL ? source : isBarePath ? pathToFileURL(source) : new URL(source);
     if (url.protocol === 'file:') data = await readFile(url);
     else {
       const response = await fetch(url);

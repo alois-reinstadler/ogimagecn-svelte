@@ -6,7 +6,7 @@ import Owner from '../src/lib/components/Owner.svelte';
 import Simple from '../src/lib/components/Simple.svelte';
 import { registry } from '../src/lib/catalog.js';
 import { renderImage, renderSvg } from '../src/lib/render.js';
-import { expectVisualMatch, imageDigest, pngDimensions } from './image-assertions.js';
+import { expectVisualMatch, expectSvgDigest, imageDigest, pngDimensions } from './image-assertions.js';
 
 const pixel =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEAQH/0JhWJwAAAABJRU5ErkJggg==';
@@ -101,6 +101,7 @@ describe('all public components as final images', () => {
 
       const baseline = fileURLToPath(new URL(`./baselines/components/${entry.name}.png`, import.meta.url));
       await expectVisualMatch(first.png, baseline);
+      expectSvgDigest(first.svg, entry.name);
     });
   }
 });

@@ -21,8 +21,16 @@ function normalizeWarning(value: unknown): string {
 // console is process-global. Serialize the small region in which Satori/Resvg may
 // report warnings so concurrent renders cannot steal or lose one another's output.
 let warningCaptureQueue: Promise<void> = Promise.resolve();
+let warningCaptureActive = false;
 
 async function withCapturedWarnings<T>(task: () => Promise<T>): Promise<{ result: T; warnings: string[] }> {
+  // Guard against re-entrancy: a nested call (e.g. renderImage invoking renderSvg)
+  // would otherwise await its own predecessor in the queue and deadlock. When a
+  // capture is already active we run without re-wrapping console, so we neither
+  // clobber the outer capture nor block on a release that never comes.
+  if (warningCaptureActive) return { result: await task(), warnings: [] };
+
+  warningCaptureActive = true;
   const previous = warningCaptureQueue;
   let release!: () => void;
   warningCaptureQueue = new Promise<void>((resolve) => {
@@ -40,6 +48,7 @@ async function withCapturedWarnings<T>(task: () => Promise<T>): Promise<{ result
   } finally {
     console.warn = originalWarn;
     console.error = originalError;
+    warningCaptureActive = false;
     release();
   }
 }
@@ -199,6 +208,8 @@ export async function renderImage<Props extends Record<string, unknown>>(
   const rendered = await renderSvg(component, props, options);
   const { result: png, warnings } = await withCapturedWarnings(async () => rasterize(rendered.svg, options));
   const allWarnings = [...rendered.warnings, ...warnings];
+  // `rendered.warnings` were already enforced (and would have thrown) by renderSvg
+  // under strict mode, so only the Resvg warnings from rasterization remain to check.
   if ((options.strict ?? true) && warnings.length > 0) {
     throw new Error(`Resvg emitted renderer warnings:\n${warnings.join('\n')}`);
   }
