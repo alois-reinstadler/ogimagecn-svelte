@@ -28,6 +28,9 @@ export async function generateSite({ output, origin, basePath, library, componen
           <a href="${A("")}" class="${active === "home" ? "active" : ""}">Home</a>
           <a href="${A("components/")}" class="${active === "components" ? "active" : ""}">Components</a>
           <a href="${A("docs/")}" class="${active === "docs" ? "active" : ""}">Docs</a>
+          <button class="search-trigger" onclick="openCommandPalette()" aria-label="Open command palette (Ctrl+K)">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
           <button class="theme-toggle" onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('ogimagecn-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.documentElement.style.colorScheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';" aria-label="Toggle dark mode">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </button>
@@ -44,10 +47,34 @@ export async function generateSite({ output, origin, basePath, library, componen
       </div>
     </footer>`;
 
+  const commandPalette = () => `
+    <div id="commandPalette" class="command-palette" style="display:none">
+      <div class="command-palette-backdrop" onclick="closeCommandPalette()"></div>
+      <div class="command-palette-dialog">
+        <div class="command-palette-input-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="size-4"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="commandPaletteInput" type="text" autocomplete="off" spellcheck="false" placeholder="Search guides, components and templates" class="command-palette-input">
+          <kbd class="command-palette-esc">esc</kbd>
+        </div>
+        <div id="commandPaletteResults" class="command-palette-results"></div>
+      </div>
+    </div>`;
+
   const codeBlock = (source, label) => `
     <div class="code-block">
       ${label ? `<button class="code-copy" data-copy="${esc(source)}">copy</button>` : ""}
       <pre><code>${esc(source)}</code></pre>
+    </div>`;
+
+  const installCommand = (commands) => `
+    <div class="install-command">
+      <div class="install-command-tabs" role="tablist">
+        ${commands.map((c, i) => `<button class="install-tab ${i === 0 ? 'active' : ''}" role="tab" onclick="showInstallTab(${i}, this)">${c.label}</button>`).join("")}
+      </div>
+      <div class="install-command-body">
+        <pre class="install-command-pre"><code>${esc(commands[0].value)}</code></pre>
+        <button class="install-copy" data-copy="${esc(commands[0].value)}">copy</button>
+      </div>
     </div>`;
 
   const layout = ({ title, description, path, body, ogImage = A("og.png") }) => `<!doctype html>
@@ -81,6 +108,7 @@ export async function generateSite({ output, origin, basePath, library, componen
 </head>
 <body>
 ${header(path === "/" ? "home" : path.startsWith("/components") ? "components" : path.startsWith("/docs") ? "docs" : "")}
+${commandPalette()}
 <main class="container-page">${body}</main>
 ${footer()}
 <script>
@@ -92,6 +120,103 @@ ${footer()}
         setTimeout(() => (el.textContent = 'copy'), 1500);
       } catch {}
     });
+  });
+
+const BASE_PATH = "${basePath}";
+  const ORIGIN = "${origin}";
+
+// ——— Command palette ———
+   const paletteItems = [
+    ...${JSON.stringify(cards.map((c) => ({
+      title: c.title,
+      href: "components/" + exportName(c.name) + ".html",
+      section: "Components",
+      subtitle: c.description
+    })))},
+    { title: "Docs", href: "docs/", section: "Guides", subtitle: "All documentation pages" },
+    { title: "Getting started", href: "docs/getting-started.html", section: "Guides", subtitle: "Install and render your first image" },
+    { title: "API reference", href: "docs/api.html", section: "Guides", subtitle: "renderSvg, renderImage and options" },
+    { title: "Composition", href: "docs/composition.html", section: "Guides", subtitle: "Use the overlay snippet" },
+    { title: "Fonts & emoji", href: "docs/fonts.html", section: "Guides", subtitle: "Load custom fonts and glyphs" },
+    { title: "Satori constraints", href: "docs/satori.html", section: "Guides", subtitle: "The CSS subset and strict mode" },
+    { title: "shadcn registry", href: ORIGIN + "/r/registry.json", section: "Actions", subtitle: "Open the registry catalog" }
+  ];
+
+  function paletteHref(href) {
+    return BASE_PATH + "/" + href;
+  }
+  function openCommandPalette() {
+    const palette = document.getElementById('commandPalette');
+    palette.style.display = 'block';
+    const input = document.getElementById('commandPaletteInput');
+    input.value = '';
+    input.focus();
+    renderPalette('');
+  }
+  function closeCommandPalette() {
+    document.getElementById('commandPalette').style.display = 'none';
+  }
+  function renderPalette(query) {
+    const q = query.trim().toLowerCase();
+    const results = paletteItems.filter((item) => {
+      if (!q) return true;
+      return item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q);
+    });
+    const sections = [...new Set(results.map((r) => r.section))];
+    let html = '';
+    for (const section of sections) {
+      html += '<div class="command-palette-section"><p class="command-palette-section-label">' + section + '</p>';
+      for (const item of results.filter((r) => r.section === section)) {
+        html += '<a class="command-palette-item" href="' + paletteHref(item.href) + '" onclick="closeCommandPalette()">';
+        html += '<span class="command-palette-title">' + item.title + '</span>';
+        html += '<span class="command-palette-subtitle">' + item.subtitle + '</span>';
+        html += '</a>';
+      }
+      html += '</div>';
+    }
+    document.getElementById('commandPaletteResults').innerHTML = html || '<p class="command-palette-empty">Nothing matches "' + query + '"</p>';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openCommandPalette();
+    } else if (e.key === 'Escape') {
+      closeCommandPalette();
+    } else if (e.key === '/' && document.getElementById('commandPalette').style.display !== 'block') {
+      const typing = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+      if (!typing) { e.preventDefault(); openCommandPalette(); }
+    }
+  });
+  document.getElementById('commandPaletteInput').addEventListener('input', (e) => renderPalette(e.target.value));
+
+// ——— Install command tabs ———
+   function showInstallTab(index, clicked) {
+     const block = clicked.closest('.install-command');
+     const tab = block.querySelectorAll('.install-tab');
+     const code = block.querySelector('.install-command-pre code');
+     const copyBtn = block.querySelector('.install-copy');
+     const installs = ${JSON.stringify(cards.map((c) => c.install))};
+     tab.forEach((t, i) => { t.classList.toggle('active', i === index); });
+     code.textContent = installs[index];
+     copyBtn.setAttribute('data-copy', installs[index]);
+   }
+
+  // ——— Component filter ———
+  function filterComponents(query) {
+    const items = document.querySelectorAll('#componentGallery .gallery-card');
+    let visible = 0;
+    items.forEach((item) => {
+      const matches = !query ||
+        item.getAttribute('data-name').toLowerCase().includes(query) ||
+        item.getAttribute('data-title').toLowerCase().includes(query) ||
+        item.getAttribute('data-desc').toLowerCase().includes(query);
+      if (matches) { item.style.display = ''; visible++; } else { item.style.display = 'none'; }
+    });
+    document.getElementById('filterCount').textContent = visible + '/' + items.length;
+  }
+  document.getElementById('componentFilter').addEventListener('input', (e) => {
+    filterComponents(e.target.value.toLowerCase());
   });
 </script>
 </body>
@@ -183,8 +308,15 @@ ${footer()}
     <section class="section">
       <h1 class="display">Components</h1>
       <p class="sub">${cards.length} components. Each links to a page with its props, a copy-paste install command, and a usage snippet.</p>
-      <div class="gallery">
-        ${cards.map((c) => `<a class="gallery-card" href="${A(`components/${c.name}.html`)}">
+      <div class="filter-bar">
+        <div class="filter-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="filter-icon"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" id="componentFilter" placeholder="Filter components..." aria-label="Filter components" class="filter-input">
+        </div>
+        <span class="filter-count" id="filterCount">${cards.length}/${cards.length}</span>
+      </div>
+      <div class="gallery" id="componentGallery">
+        ${cards.map((c) => `<a class="gallery-card" href="${A(`components/${c.name}.html`)}" data-name="${esc(c.name)}" data-title="${esc(c.title)}" data-desc="${esc(c.description)}">
           <img src="${A(`previews/${c.name}.png`)}" width="600" height="315" loading="lazy" alt="${esc(c.title)} Open Graph image">
           <div class="card-body">
             <h3>${esc(c.title)}</h3>
@@ -208,6 +340,12 @@ ${footer()}
       return `<tr><td><code>${esc(k)}</code></td><td>${val}</td></tr>`;
     }).join("\n");
     const usage = `import { ${exportName(c.name)} } from 'ogimagecn-svelte';\n\nconst { svg, png } = await renderImage(${exportName(c.name)}, {\n  // all props optional; component defaults are applied\n});`;
+    const installCommands = [
+      { label: "pnpm", value: `pnpm dlx shadcn-svelte@latest add ${origin}/r/${c.name}.json` },
+      { label: "npm", value: `npx shadcn-svelte@latest add ${origin}/r/${c.name}.json` },
+      { label: "bun", value: `bunx shadcn-svelte@latest add ${origin}/r/${c.name}.json` },
+      { label: "yarn", value: `yarn dlx shadcn-svelte@latest add ${origin}/r/${c.name}.json` }
+    ];
     const page = layout({
       title: c.title,
       description: c.description,
@@ -220,7 +358,7 @@ ${footer()}
         <img src="${A(`previews/${c.name}.png`)}" width="1200" height="630" alt="${esc(c.title)} Open Graph image">
       </div>
       <h3>Install</h3>
-      ${codeBlock(c.install, true)}
+      ${installCommand(installCommands)}
       <h3>Usage</h3>
       ${codeBlock(usage, false)}
       <h3>Props</h3>
@@ -228,7 +366,7 @@ ${footer()}
       <table class="props-table"><thead><tr><th>Prop</th><th>Default</th></tr></thead><tbody>${propRows}</tbody></table>
       <h3>shadcn-svelte</h3>
       <p>Add the source directly to your project:</p>
-      ${codeBlock(c.install, true)}
+      ${installCommand(installCommands)}
       `
     });
     await renderPage(`components/${c.name}.html`, page);
@@ -251,9 +389,37 @@ ${footer()}
       </div>
     </div>`;
 
+  const DOCS_ORDER = ["index", "getting-started", "api", "composition", "fonts", "satori"];
+  const DOCS_TITLES = {
+    index: "Documentation",
+    "getting-started": "Getting started",
+    api: "API reference",
+    composition: "Composition",
+    fonts: "Fonts & emoji",
+    satori: "Satori constraints"
+  };
+
+  const docsPrevNext = (key) => {
+    const idx = DOCS_ORDER.indexOf(key);
+    const items = [];
+    if (idx > 0) {
+      const prev = DOCS_ORDER[idx - 1];
+      const prevPath = prev === "index" ? "docs/" : `docs/${prev}.html`;
+      items.push(`<a href="${A(prevPath)}" class="nav-prev"><span class="field-label">Previous</span><span class="flex items-center gap-1.5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="size-3.5"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> ${esc(DOCS_TITLES[prev])}</span></a>`);
+    } else {
+      items.push(`<span></span>`);
+    }
+    if (idx >= 0 && idx < DOCS_ORDER.length - 1) {
+      const next = DOCS_ORDER[idx + 1];
+      const nextPath = next === "index" ? "docs/" : `docs/${next}.html`;
+      items.push(`<a href="${A(nextPath)}" class="nav-next"><span class="field-label">Next</span><span class="flex items-center gap-1.5">${esc(DOCS_TITLES[next])} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="size-3.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>`);
+    }
+    return items.join("");
+  };
+
   const docsPage = ({ title, description, key, body }) => layout({
     title, description, path: `/docs/${key === "index" ? "" : key + ".html"}`,
-    body: `${docsNav(key)}${body}${docsFooter}`
+    body: `${docsNav(key)}${body}<nav class="docs-pagination">${docsPrevNext(key)}</nav>${docsFooter}`
   });
 
   await renderPage("docs/index.html", docsPage({
