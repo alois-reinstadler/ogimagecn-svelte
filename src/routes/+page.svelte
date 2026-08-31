@@ -94,7 +94,7 @@ const { png } = await renderImage(Product, {
       <article class="overflow-hidden rounded-md border bg-card">
         <div class="bg-dots p-2">
           <img
-            src={`${base}/previews/use-cases/${useCase.name}.png`}
+            src={`${base}/previews/use-cases/${useCase.slug}.png`}
             width="600"
             height="315"
             alt={`${useCase.title} Vorschau`}
@@ -103,7 +103,7 @@ const { png } = await renderImage(Product, {
           />
         </div>
         <div class="border-t p-5">
-          <p class="field-label text-muted-foreground">{useCase.eyebrow}</p>
+          <p class="field-label text-muted-foreground">{useCase.category}</p>
           <h3 class="mt-2 font-medium">{useCase.title}</h3>
           <p class="text-muted-foreground mt-2 text-sm leading-6">{useCase.description}</p>
         </div>
@@ -134,7 +134,7 @@ const { png } = await renderImage(Product, {
     <div>
       <h2 class="display text-2xl sm:text-3xl">Mit einer Vorlage beginnen</h2>
       <p class="text-muted-foreground mt-3 max-w-2xl">
-        {componentIndex.length} kompatible Ausgangspunkte für Content, Produkte, Marken und Developer Tools.
+        {componentIndex.length} konkrete Einsatzfälle mit kompatiblen, installierbaren API-Komponenten.
       </p>
     </div>
     <a href={`${base}/components/`} class="text-sm">Alle öffnen</a>

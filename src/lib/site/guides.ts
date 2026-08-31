@@ -21,6 +21,11 @@ export async function GET() {
       {type:'p',text:'Der stärkste Einsatzfall ist nicht ein einzelnes Open-Graph-Bild, sondern eine wiederholbare Abbildung: Produkt, Release, Termin oder Kennzahl hinein; geprüftes SVG oder PNG hinaus.'},
       {type:'list',items:['Commerce: Produktname, Preis, Währung, Bild und Kampagnenstatus aus Katalog- oder CMS-Daten.','Automatisierung: Release Notes, Statusseiten und Deployment-Ergebnisse direkt aus einer Pipeline.','Lokalisierung: übersetzte Inhalte, de-AT-Formatierung, Zeitzonen und explizit geladene Schriften.','Personalisierung: Meilensteine, Zertifikate oder Jahresrückblicke als Batch-Job pro Konto.','Content: Artikel-, Podcast- oder Immobilienvorschauen aus bereits vorhandenen Datensätzen.']}
     ]},
+    {id:'vorlagen-statt-formen',title:'Vorlagen nach Aufgabe auswählen',blocks:[
+      {type:'p',text:'Namen wie Simple, Grid oder Shadcn Registry beschreiben weder den Inhalt noch den Anlass. Die Galerie ordnet deshalb jede stabile API-Komponente einer konkreten Aufgabe zu: etwa Feature-Ankündigung, technischer Deep Dive, Produkt-Launch, Immobilien-Inserat oder Kundengeschichte.'},
+      {type:'list',items:['Die Einsatzfall-Bezeichnung hilft bei der Auswahl und darf sich mit besseren Beispielen weiterentwickeln.','Der technische Komponentenname und die Props bleiben kompatibel; bestehende Imports und Registry-URLs ändern sich nicht.','Beispieldaten zeigen eine glaubwürdige Situation statt Platzhaltertext. Bildbasierte Vorlagen verwenden lokale, reproduzierbare Beispielassets.']},
+      {type:'note',title:'Vorlage ist nicht Datenmodell',text:'Product kennt Preis und Packshot, Changelog eine Liste von Änderungen, Event Termin und Ort. Wähle die Komponente nach den Daten, die deine Anwendung tatsächlich besitzt — nicht nur nach Farbe oder Form.'}
+    ]},
     {id:'commerce',title:'Commerce-Endpunkt',blocks:[
       {type:'p',text:'Ein Produktbild zeigt den Nutzen der typisierten Props besonders klar: Die Anwendung besitzt die Daten bereits und formatiert Preis sowie Verfügbarkeit, bevor sie die visuelle Komponente aufruft.'},
       {type:'code',filename:'src/routes/og/product/[slug]/+server.ts',code:`import { error } from '@sveltejs/kit';

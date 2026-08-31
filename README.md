@@ -16,6 +16,37 @@ The library works best when the content changes frequently but the visual system
 
 Satori is deliberately not a browser screenshot engine. Use a browser-based renderer when the output must reproduce arbitrary HTML/CSS, canvas charts, client-side widgets, or animation. Changing `width` and `height` changes the canvas; it does not automatically make a 1200 × 630 component responsive to square or story formats.
 
+## Use-case catalogue
+
+The public component names remain stable for package and upstream registry compatibility. The documentation presents them by the job they solve instead of treating visual-shape names as product concepts:
+
+| Use case | Component API | Typical input |
+| --- | --- | --- |
+| Feature announcement | `Simple` | product update and concise benefit |
+| Technical deep dive | `Grid` | engineering title and summary |
+| Editorial article | `Blog` | section, author, portrait, and reading time |
+| Release notes | `Changelog` | version, date, and highlights |
+| Customer testimonial | `Quote` | quote, customer, role, and portrait |
+| Open-source project | `ShadcnRegistry1` | repository URL, description, and project facts |
+| Feature collection | `ShadcnRegistry2` | product area and related capabilities |
+| Campaign headline | `ShadcnRegistry3` | manifesto line and campaign credit |
+| Developer-tool launch | `ShadcnRegistry4` | tool name, promise, and URL |
+| Marketplace offer | `ShadcnRegistry5` | template or digital-product proposition |
+| API documentation | `ShadcnRegistry6` | API area and integration promise |
+| Property listing | `Photo` | location, listing title, and property photo |
+| Product launch | `Product` | brand, product, price, and packshot |
+| Founder profile | `Profile` | person, role, biography, and portrait |
+| Event announcement | `Event` | organizer, date, venue, and event name |
+| KPI milestone | `Stat` | formatted value, trend, and period |
+| Brand launch | `Logo` | name, monogram or logo, and positioning |
+| CLI release | `Terminal` | release promise and install command |
+| Magazine cover | `Editorial` | issue, section, and cover line |
+| SaaS product preview | `Showcase` | outcome, product URL, and UI accent |
+| Consumer-app launch | `Shiori` | app name and single core idea |
+| Customer story | `Owner` | customer, outcome, portrait, product, and place |
+
+The gallery renders each entry with realistic German-language data and repository-owned example photography. Those images are documentation fixtures; consumers should supply their own trusted, cached, or embedded assets.
+
 ## Install
 
 ```sh
