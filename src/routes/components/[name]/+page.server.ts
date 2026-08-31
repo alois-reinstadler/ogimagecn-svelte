@@ -8,7 +8,7 @@ export const entries = () => componentIndex.map(({ name }) => ({ name }));
 export const load = ({ params }) => {
   const meta = componentIndex.find((component) => component.name === params.name);
   const entry = registry.find((component) => component.name === params.name);
-  if (!meta || !entry) error(404, 'Komponente nicht gefunden');
+  if (!meta || !entry) error(404, 'Component not found');
 
   const showcase = componentShowcaseByName[entry.name];
   const exampleProps = [

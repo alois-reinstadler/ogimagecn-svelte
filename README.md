@@ -45,7 +45,7 @@ The public component names remain stable for package and upstream registry compa
 | Consumer-app launch | `Shiori` | app name and single core idea |
 | Customer story | `Owner` | customer, outcome, portrait, product, and place |
 
-The gallery renders each entry with realistic German-language data and repository-owned example photography. Those images are documentation fixtures; consumers should supply their own trusted, cached, or embedded assets.
+The gallery renders each entry with realistic English-language data and repository-owned example photography. Those images are documentation fixtures; consumers should supply their own trusted, cached, or embedded assets.
 
 ## Install
 
@@ -96,7 +96,7 @@ export async function GET({ params }) {
   const product = await catalog.getProduct(params.slug);
   if (!product) error(404, 'Produkt nicht gefunden');
 
-  const price = new Intl.NumberFormat('de-AT', {
+  const price = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: product.currency
   }).format(product.price);

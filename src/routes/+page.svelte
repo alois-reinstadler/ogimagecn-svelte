@@ -10,7 +10,7 @@
 const { png } = await renderImage(Product, {
   title: product.name,
   description: product.shortDescription,
-  price: new Intl.NumberFormat('de-AT', {
+  price: new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: product.currency
   }).format(product.price),
@@ -19,10 +19,10 @@ const { png } = await renderImage(Product, {
 </script>
 
 <svelte:head>
-  <title>ogimagecn-svelte — Daten werden Markenbilder</title>
+  <title>ogimagecn-svelte — Turn data into brand images</title>
   <meta
     name="description"
-    content="Typisierte Svelte-5-Komponenten für dynamische, deterministische SVG- und PNG-Ausgabe mit Satori."
+    content="Typed Svelte 5 components for dynamic, deterministic SVG and PNG output with Satori."
   />
 </svelte:head>
 
@@ -31,24 +31,24 @@ const { png } = await renderImage(Product, {
     <div>
       <p class="field-label text-muted-foreground">Svelte 5 · Satori · SVG + PNG</p>
       <h1 class="display mt-5 text-[2.75rem] leading-[.95] sm:text-6xl">
-        Strukturierte Daten.<br />Markenbilder.
+        Structured data.<br />Brand images.
       </h1>
       <p class="text-muted-foreground mt-6 max-w-lg text-[17px] leading-relaxed">
-        Produkte, Releases, Termine und Kennzahlen am Server in reproduzierbare Bilder übersetzen — mit
-        typisierten Svelte-Komponenten statt Browser-Screenshots oder React-Bäumen.
+        Turn products, releases, events, and metrics into reproducible server-rendered images — with typed
+        Svelte components instead of browser screenshots or React trees.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a
           href={`${base}/docs/einsatzfaelle/`}
           class="bg-foreground text-background inline-flex h-10 items-center gap-2 rounded px-5 text-sm font-medium no-underline"
         >
-          Einsatzfälle ansehen <Icon name="arrow-right" class="size-3.5" />
+          Explore use cases <Icon name="arrow-right" class="size-3.5" />
         </a>
         <a
           href={`${base}/docs/einstieg/`}
           class="hover:bg-accent inline-flex h-10 items-center rounded border px-5 text-sm font-medium no-underline"
         >
-          Loslegen
+          Get started
         </a>
       </div>
       <div class="mt-8"><CodeBlock code="pnpm add ogimagecn-svelte" /></div>
@@ -58,7 +58,7 @@ const { png } = await renderImage(Product, {
         src={`${base}/previews/use-cases/commerce.png`}
         width="1200"
         height="630"
-        alt="Aus Produktdaten gerendertes Kampagnenbild"
+        alt="Campaign visual rendered from product data"
         class="w-full rounded border shadow-xl"
       />
     </div>
@@ -68,9 +68,9 @@ const { png } = await renderImage(Product, {
 <section class="container-page border-t py-14">
   <dl class="grid gap-10 md:grid-cols-3">
     {#each [
-      { t: 'Datengetrieben', d: 'Props aus Katalog, CMS, Release-Pipeline oder Datenbank werden zu konsistenten Markenbildern.' },
-      { t: 'Svelte-native', d: 'Typisierte Svelte-5-Komponenten und Snippets halten Layout und Komposition im eigenen Stack.' },
-      { t: 'Produktionsklar', d: 'Deterministische Ausgabe und Strict Mode machen Asset-, Font- und Layoutprobleme früh sichtbar.' }
+      { t: 'Data-driven', d: 'Props from your catalog, CMS, release pipeline, or database become consistent brand images.' },
+      { t: 'Svelte-native', d: 'Typed Svelte 5 components and snippets keep layout and composition in your own stack.' },
+      { t: 'Production-ready', d: 'Deterministic output and strict mode surface asset, font, and layout issues early.' }
     ] as item}
       <div>
         <dt class="field-label">{item.t}</dt>
@@ -82,11 +82,11 @@ const { png } = await renderImage(Product, {
 
 <section class="container-page border-t py-14">
   <div class="max-w-3xl">
-    <p class="field-label text-muted-foreground">Nicht nur Blog-Vorschaubilder</p>
-    <h2 class="display mt-3 text-2xl sm:text-3xl">Ein Renderer, mehrere echte Arbeitsabläufe</h2>
+    <p class="field-label text-muted-foreground">More than blog previews</p>
+    <h2 class="display mt-3 text-2xl sm:text-3xl">One renderer, multiple real workflows</h2>
     <p class="text-muted-foreground mt-3 leading-7">
-      Der größte Nutzen entsteht, wenn Inhalte häufig wechseln und das visuelle System stabil bleiben soll.
-      Diese Beispiele werden mit derselben Produktions-Pipeline wie dein Servercode gerendert.
+      The biggest gains come when content changes often while the visual system stays consistent.
+      These examples use the same production pipeline as your server code.
     </p>
   </div>
   <div class="mt-8 grid gap-5 md:grid-cols-2">
@@ -97,7 +97,7 @@ const { png } = await renderImage(Product, {
             src={`${base}/previews/use-cases/${useCase.slug}.png`}
             width="600"
             height="315"
-            alt={`${useCase.title} Vorschau`}
+            alt={`${useCase.title} preview`}
             loading="lazy"
             class="w-full rounded-sm"
           />
@@ -115,14 +115,14 @@ const { png } = await renderImage(Product, {
 <section class="container-page border-t py-14">
   <div class="grid gap-10 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-16">
     <div>
-      <p class="field-label text-muted-foreground">Daten hinein, Bild hinaus</p>
-      <h2 class="display mt-3 text-2xl sm:text-3xl">Die Anwendung behält die Kontrolle</h2>
+      <p class="field-label text-muted-foreground">Data in, image out</p>
+      <h2 class="display mt-3 text-2xl sm:text-3xl">Your application stays in control</h2>
       <p class="text-muted-foreground mt-4 leading-7">
-        Preise werden mit <code class="font-mono">Intl</code> formatiert, Bilder kontrolliert geladen und
-        Cache-Regeln im Endpunkt festgelegt. Der Renderer übernimmt nur die reproduzierbare Darstellung.
+        Format prices with <code class="font-mono">Intl</code>, load images under your own policy, and set cache
+        rules in the endpoint. The renderer handles only the reproducible presentation.
       </p>
       <a href={`${base}/docs/einsatzfaelle/`} class="mt-6 inline-flex items-center gap-2 text-sm">
-        Vollständige Endpunkte öffnen <Icon name="arrow-right" />
+        View complete endpoints <Icon name="arrow-right" />
       </a>
     </div>
     <CodeBlock code={endpointCode} filename="og-product.ts" />
@@ -132,12 +132,12 @@ const { png } = await renderImage(Product, {
 <section class="container-page border-t py-14">
   <div class="flex items-baseline justify-between gap-4">
     <div>
-      <h2 class="display text-2xl sm:text-3xl">Mit einer Vorlage beginnen</h2>
+      <h2 class="display text-2xl sm:text-3xl">Start with a template</h2>
       <p class="text-muted-foreground mt-3 max-w-2xl">
-        {componentIndex.length} konkrete Einsatzfälle mit kompatiblen, installierbaren API-Komponenten.
+        {componentIndex.length} concrete use cases with compatible, installable API components.
       </p>
     </div>
-    <a href={`${base}/components/`} class="text-sm">Alle öffnen</a>
+    <a href={`${base}/components/`} class="text-sm">View all</a>
   </div>
   <div class="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
     {#each componentIndex.slice(0, 6) as item}
@@ -162,14 +162,14 @@ const { png } = await renderImage(Product, {
 </section>
 
 <section class="container-page border-t py-16 text-center">
-  <h2 class="display text-2xl sm:text-3xl">Mit echten Daten starten</h2>
+  <h2 class="display text-2xl sm:text-3xl">Start with real data</h2>
   <p class="text-muted-foreground mx-auto mt-3 max-w-xl">
-    Installieren, eine Vorlage mit deinem Datensatz verbinden und SVG oder PNG am Server ausgeben.
+    Install the package, connect a template to your dataset, and output SVG or PNG on the server.
   </p>
   <a
     href={`${base}/docs/einstieg/`}
     class="bg-foreground text-background mt-7 inline-flex h-10 items-center gap-2 rounded px-5 text-sm font-medium no-underline"
   >
-    Anleitung öffnen <Icon name="arrow-right" />
+    Open the guide <Icon name="arrow-right" />
   </a>
 </section>

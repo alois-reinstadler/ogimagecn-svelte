@@ -4,12 +4,12 @@ import { componentShowcaseByName } from './use-cases.js';
 
 export const REPOSITORY = 'https://github.com/alois-reinstadler/ogimagecn-svelte';
 export const guides = [
-  { slug: 'einstieg', title: 'Einstieg', hint: 'Installieren und das erste Bild rendern' },
-  { slug: 'einsatzfaelle', title: 'Einsatzfälle', hint: 'Commerce, Releases und personalisierte Bilder' },
-  { slug: 'api', title: 'API-Referenz', hint: 'Renderer, Optionen und Rückgabewerte' },
-  { slug: 'komposition', title: 'Komposition', hint: 'Layouts mit Svelte-Snippets erweitern' },
-  { slug: 'schriften', title: 'Schriften & Emoji', hint: 'Fonts und fehlende Glyphen laden' },
-  { slug: 'satori', title: 'Satori-Grenzen', hint: 'Unterstütztes CSS und Strict Mode' }
+  { slug: 'einstieg', title: 'Getting started', hint: 'Install the package and render your first image' },
+  { slug: 'einsatzfaelle', title: 'Use cases', hint: 'Commerce, releases, and personalized images' },
+  { slug: 'api', title: 'API reference', hint: 'Renderer, options, and return values' },
+  { slug: 'komposition', title: 'Composition', hint: 'Extend layouts with Svelte snippets' },
+  { slug: 'schriften', title: 'Fonts & emoji', hint: 'Load fonts and missing glyphs' },
+  { slug: 'satori', title: 'Satori constraints', hint: 'Supported CSS and strict mode' }
 ] as const;
 export const componentIndex = components.map((component) => {
   const showcase = componentShowcaseByName[component.name as RegistryName];
@@ -22,11 +22,11 @@ export const componentIndex = components.map((component) => {
   };
 });
 export const sections = [
-  { id: 'guides', label: 'Anleitungen', href: '/docs/', count: guides.length },
-  { id: 'components', label: 'Vorlagen', href: '/components/', count: componentIndex.length }
+  { id: 'guides', label: 'Guides', href: '/docs/', count: guides.length },
+  { id: 'components', label: 'Templates', href: '/components/', count: componentIndex.length }
 ] as const;
 export function sectionOf(path: string) { return path.startsWith('/components') ? 'components' : 'guides'; }
 export const searchIndex = [
-  ...guides.map((g) => ({ title:g.title, subtitle:g.hint, section:'Anleitungen', href:`/docs/${g.slug}/`, keywords:`${g.title} ${g.hint}`.toLowerCase() })),
-  ...componentIndex.map((c) => ({ title:c.title, subtitle:c.description, section:'Vorlagen', href:`/components/${c.name}/`, keywords:`${c.name} ${c.template} ${c.category} ${c.title} ${c.description}`.toLowerCase() }))
+  ...guides.map((g) => ({ title:g.title, subtitle:g.hint, section:'Guides', href:`/docs/${g.slug}/`, keywords:`${g.title} ${g.hint}`.toLowerCase() })),
+  ...componentIndex.map((c) => ({ title:c.title, subtitle:c.description, section:'Templates', href:`/components/${c.name}/`, keywords:`${c.name} ${c.template} ${c.category} ${c.title} ${c.description}`.toLowerCase() }))
 ];

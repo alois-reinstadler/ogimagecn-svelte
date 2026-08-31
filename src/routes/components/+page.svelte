@@ -11,31 +11,31 @@
 </script>
 
 <svelte:head>
-  <title>Vorlagen nach Einsatzfall — ogimagecn-svelte</title>
+  <title>Templates by use case — ogimagecn-svelte</title>
   <meta
     name="description"
-    content="Open-Graph-Vorlagen für Produktlaunches, Artikel, Releases, Events, Kundenstimmen und weitere konkrete Aufgaben."
+    content="Open Graph templates for product launches, articles, releases, events, testimonials, and other real-world tasks."
   />
 </svelte:head>
 
 <div class="flex items-end justify-between gap-6">
   <div>
-    <p class="field-label text-muted-foreground">Einsatzfälle</p>
-    <h1 class="display mt-3 text-4xl sm:text-[2.75rem]">Was möchtest du veröffentlichen?</h1>
+    <p class="field-label text-muted-foreground">Use cases</p>
+    <h1 class="display mt-3 text-4xl sm:text-[2.75rem]">What do you want to publish?</h1>
     <p class="text-muted-foreground mt-4 max-w-3xl text-[17px] leading-7">
-      Nicht 22 abstrakte Layoutnamen, sondern 22 konkrete Ausgangspunkte: vom Produkt-Launch über
-      Release-Notizen bis zur Restaurant-Kundengeschichte. Die technischen API-Namen bleiben kompatibel.
+      Not 22 abstract layout names, but 22 practical starting points: from product launches and release notes
+      to restaurant customer stories. The technical API names remain compatible.
     </p>
   </div>
   <span class="font-mono text-sm tabular-nums text-muted-foreground">{filtered.length}/{componentIndex.length}</span>
 </div>
 
 <label class="mt-8 flex max-w-md items-center rounded border bg-background px-3">
-  <span class="sr-only">Einsatzfälle filtern</span>
+  <span class="sr-only">Filter use cases</span>
   <input
     bind:value={query}
     type="search"
-    placeholder="Einsatzfall suchen …"
+    placeholder="Search use cases…"
     class="h-10 w-full bg-transparent outline-none"
   />
 </label>
@@ -48,7 +48,7 @@
           src={`${base}/previews/${item.name}.png`}
           width="600"
           height="315"
-          alt={`${item.title} Vorschau`}
+          alt={`${item.title} preview`}
           loading="lazy"
           class="w-full rounded-sm"
         />

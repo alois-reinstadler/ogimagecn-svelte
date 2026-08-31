@@ -9,7 +9,7 @@ export const entries = () => registry.map(({ name }) => ({ name }));
 
 export async function GET({ params }) {
   const entry = registry.find((item) => item.name === params.name);
-  if (!entry) error(404, 'Vorschau nicht gefunden');
+  if (!entry) error(404, 'Preview not found');
   const showcase = componentShowcaseByName[entry.name];
   const props = await resolveExampleProps(showcase);
   const { png } = await renderImage(entry.component as never, props as never);

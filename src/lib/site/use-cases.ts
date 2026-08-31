@@ -18,217 +18,217 @@ export interface ComponentShowcase {
 export const componentShowcases: readonly ComponentShowcase[] = [
   {
     name: 'simple',
-    title: 'Feature-Ankündigung',
-    category: 'Produktmarketing',
-    description: 'Eine klare Produktneuigkeit für Launches, Wartelisten und große Funktionsupdates.',
+    title: 'Feature announcement',
+    category: 'Product marketing',
+    description: 'A clear product update for launches, waitlists, and major feature releases.',
     props: {
-      brand: 'Klarblick',
-      label: 'Neu im Produkt',
-      title: 'Forecasts, die dein Team wirklich versteht',
-      description: 'Szenarien vergleichen, Risiken früher sehen und gemeinsam entscheiden.'
+      brand: 'Clearview',
+      label: 'New in the product',
+      title: 'Forecasts your whole team can understand',
+      description: 'Compare scenarios, spot risks earlier, and make decisions together.'
     }
   },
   {
     name: 'grid',
-    title: 'Technischer Deep Dive',
+    title: 'Technical deep dive',
     category: 'Developer Content',
-    description: 'Für Architekturartikel, Engineering-Entscheidungen und technische Fallstudien.',
+    description: 'For architecture articles, engineering decisions, and technical case studies.',
     props: {
-      brand: 'Nordgrat Engineering',
-      title: 'Wie wir 40 % Build-Zeit eingespart haben',
-      description: 'Messdaten, Fehlversuche und die Architektur hinter unserem schnelleren Svelte-Monorepo.'
+      brand: 'North Ridge Engineering',
+      title: 'How we cut build times by 40%',
+      description: 'Measurements, failed attempts, and the architecture behind our faster Svelte monorepo.'
     }
   },
   {
     name: 'blog',
-    title: 'Editorialer Artikel',
+    title: 'Editorial article',
     category: 'Publishing',
-    description: 'Ein redaktionelles Motiv mit Autorin, Ressort, Zusammenfassung und Lesedauer.',
+    description: 'An editorial image with author, section, summary, and reading time.',
     props: {
-      brand: 'Aufbau',
-      category: 'Arbeitskultur',
-      title: 'Warum kleine Teams bessere Systeme bauen',
-      excerpt: 'Was sich ändert, wenn Verantwortung nicht zwischen Abteilungen verloren geht.',
-      author: 'Mara Berger',
-      meta: '31. August 2026 · 8 Min.'
+      brand: 'Framework',
+      category: 'Work culture',
+      title: 'Why small teams build better systems',
+      excerpt: 'What changes when ownership no longer gets lost between departments.',
+      author: 'Mara Bennett',
+      meta: 'August 31, 2026 · 8 min'
     },
     assets: [{ prop: 'avatar', file: 'founder-mara-berger.jpg' }]
   },
   {
     name: 'changelog',
-    title: 'Release-Notizen',
-    category: 'Produktupdates',
-    description: 'Version, Veröffentlichungsdatum und die wichtigsten Änderungen aus einer Release-Pipeline.',
+    title: 'Release notes',
+    category: 'Product updates',
+    description: 'Version, publication date, and the most important changes from a release pipeline.',
     props: {
-      brand: 'Nordgrat Cloud',
+      brand: 'North Ridge Cloud',
       version: 'v3.2.0',
-      date: '31. August 2026',
-      title: 'Release bereit',
-      items: ['Schnellere Builds', 'Neue Svelte-Adapter', 'Präzisere Diagnosen']
+      date: 'August 31, 2026',
+      title: 'Release ready',
+      items: ['Faster builds', 'New Svelte adapters', 'More precise diagnostics']
     }
   },
   {
     name: 'quote',
-    title: 'Kundenstimme',
+    title: 'Customer testimonial',
     category: 'Social Proof',
-    description: 'Ein glaubwürdiges Testimonial für Fallstudien, Launches und Vertriebsinhalte.',
+    description: 'A credible testimonial for case studies, launches, and sales content.',
     props: {
-      quote: 'Seit der Umstellung kommen Reservierungen und Stammgäste endlich aus demselben System.',
-      author: 'Lukas Kern',
-      handle: 'Inhaber · Gasthaus Kern'
+      quote: 'Since the switch, reservations and repeat guests finally come through the same system.',
+      author: 'Luke Carter',
+      handle: 'Owner · Carter House'
     },
     assets: [{ prop: 'avatar', file: 'restaurant-owner.jpg' }]
   },
   {
     name: 'shadcn-registry-1',
-    title: 'Open-Source-Projekt',
+    title: 'Open-source project',
     category: 'Developer Tools',
-    description: 'Ein Repository- oder Registry-Launch mit URL, Nutzenversprechen und Projektmerkmalen.',
+    description: 'A repository or registry launch with a URL, value proposition, and project highlights.',
     props: {
-      name: 'formwerk',
-      url: 'formwerk.dev',
-      description: 'Typisierte Formulare für Svelte, vom Schema bis zur barrierefreien Oberfläche.',
+      name: 'formcraft',
+      url: 'formcraft.dev',
+      description: 'Typed forms for Svelte, from schema to accessible interface.',
       items: ['MIT', 'Svelte 5', '2,4k Stars']
     }
   },
   {
     name: 'shadcn-registry-2',
-    title: 'Feature-Kollektion',
-    category: 'Produktmarketing',
-    description: 'Mehrere zusammengehörige Fähigkeiten als kuratierte Kollektion präsentieren.',
+    title: 'Feature collection',
+    category: 'Product marketing',
+    description: 'Present a group of related capabilities as a curated collection.',
     props: {
-      name: 'Klarblick',
+      name: 'Clearview',
       category: 'Analytics',
-      title: 'Ein ruhiger Ort für alle wichtigen Geschäftskennzahlen',
-      items: ['Forecasts', 'Berichte', 'Ziele'],
+      title: 'One calm place for every important business metric',
+      items: ['Forecasts', 'Reports', 'Goals'],
       accent: '#2563eb'
     }
   },
   {
     name: 'shadcn-registry-3',
-    title: 'Kampagnen-Headline',
-    category: 'Kampagne',
-    description: 'Ein plakatives Leitmotiv für Initiativen, Manifestos und große Markenbotschaften.',
+    title: 'Campaign headline',
+    category: 'Campaign',
+    description: 'A bold key message for initiatives, manifestos, and major brand campaigns.',
     props: {
-      title: 'Eine Stadt, die im Sommer atmen kann',
-      credit: 'Eine Initiative von Wien morgen',
-      ghost: 'KLIMA'
+      title: 'A city that can breathe in summer',
+      credit: 'An initiative by Tomorrow London',
+      ghost: 'CLIMATE'
     }
   },
   {
     name: 'shadcn-registry-4',
-    title: 'Developer-Tool-Launch',
+    title: 'Developer tool launch',
     category: 'Developer Tools',
-    description: 'Ein fokussiertes Launch-Motiv für CLIs, SDKs und Werkzeuge mit einer klaren URL.',
+    description: 'A focused launch image for CLIs, SDKs, and developer tools with a clear URL.',
     props: {
       name: 'tempo',
-      title: 'Lokale Entwicklungsumgebungen, die in Sekunden bereit sind',
+      title: 'Local development environments ready in seconds',
       url: 'tempo.dev'
     }
   },
   {
     name: 'shadcn-registry-5',
-    title: 'Marketplace-Angebot',
+    title: 'Marketplace listing',
     category: 'Commerce',
-    description: 'Ein digitales Produkt oder Template mit Angebotsname und kompaktem Stack-Versprechen.',
+    description: 'A digital product or template with an offer name and a concise stack promise.',
     props: {
-      name: 'Blockhaus',
+      name: 'Blockhouse',
       title: 'SvelteKit Commerce Starter',
-      description: 'Checkout, Kundenkonto, Suche und CMS — produktionsbereit zusammengesetzt.'
+      description: 'Checkout, customer accounts, search, and CMS — assembled for production.'
     }
   },
   {
     name: 'shadcn-registry-6',
-    title: 'API-Dokumentation',
+    title: 'API documentation',
     category: 'Developer Tools',
-    description: 'Ein reduziertes Motiv für API-Bereiche, Integrationsseiten und technische Dokumentation.',
+    description: 'A minimal image for API sections, integration pages, and technical documentation.',
     props: {
       brand: 'Pulse API',
-      title: 'Zahlungen integrieren, ohne den Checkout neu zu erfinden',
-      description: 'Typisierte Endpunkte, Testmodus und Webhooks mit nachvollziehbaren Fehlern.'
+      title: 'Integrate payments without rebuilding checkout',
+      description: 'Typed endpoints, test mode, and webhooks with actionable errors.'
     }
   },
   {
     name: 'photo',
-    title: 'Immobilien-Inserat',
-    category: 'Marktplatz',
-    description: 'Ein bildstarkes Inserat für Immobilien, Reisen und andere ortsgebundene Angebote.',
+    title: 'Property listing',
+    category: 'Marketplace',
+    description: 'An image-led listing for real estate, travel, and other location-based offers.',
     props: {
-      brand: 'Nordraum Immobilien',
-      label: 'Innsbruck · Hungerburg',
-      title: 'Architektenhaus mit Blick über das Inntal'
+      brand: 'Northspace Realty',
+      label: 'Aspen · Red Mountain',
+      title: 'Architect-designed home with a mountain view'
     },
     assets: [{ prop: 'image', file: 'alpine-cabin.jpg' }]
   },
   {
     name: 'product',
-    title: 'Produkt-Launch',
+    title: 'Product launch',
     category: 'Commerce',
-    description: 'Ein konkretes Produkt mit Packshot, Preis, Marke und kaufentscheidendem Nutzen.',
+    description: 'A real product with a packshot, price, brand, and purchase-driving benefit.',
     props: {
-      brand: 'Nordgrat',
+      brand: 'North Ridge',
       title: 'Alpine Trail Shell',
-      description: 'Wetterfest. Reparierbar. Bereit für den nächsten Aufstieg.',
-      price: '€ 189,90'
+      description: 'Weatherproof. Repairable. Ready for the next ascent.',
+      price: '$189.90'
     },
     assets: [{ prop: 'image', file: 'alpine-shell.jpg' }]
   },
   {
     name: 'profile',
-    title: 'Founder-Profil',
+    title: 'Founder profile',
     category: 'Personal Brand',
-    description: 'Eine Person mit Rolle, Perspektive und glaubwürdigem Portrait vorstellen.',
+    description: 'Introduce a person with their role, perspective, and a credible portrait.',
     props: {
-      name: 'Mara Berger',
-      role: 'Gründerin von Kreiswerk',
-      bio: 'Entwickelt Kreislaufsoftware für produzierende Unternehmen und schreibt über bessere Klimadaten.',
-      website: 'kreiswerk.at'
+      name: 'Mara Bennett',
+      role: 'Founder of Loopworks',
+      bio: 'Builds circular economy software for manufacturers and writes about better climate data.',
+      website: 'loopworks.com'
     },
     assets: [{ prop: 'avatar', file: 'founder-mara-berger.jpg' }]
   },
   {
     name: 'event',
-    title: 'Event-Ankündigung',
+    title: 'Event announcement',
     category: 'Community',
-    description: 'Titel, Format, Termin und Ort für Konferenzen, Webinare oder lokale Treffen.',
+    description: 'Title, format, date, and location for conferences, webinars, or local meetups.',
     props: {
-      brand: 'Svelte Vienna',
-      label: 'Live in Wien',
-      title: 'Svelte Summit Austria',
-      date: '17. September 2026 · 18:30',
-      location: 'MuseumsQuartier, Wien'
+      brand: 'Svelte London',
+      label: 'Live in London',
+      title: 'Svelte Summit UK',
+      date: 'September 17, 2026 · 6:30 PM',
+      location: 'Barbican Centre, London'
     }
   },
   {
     name: 'stat',
-    title: 'KPI-Meilenstein',
-    category: 'Datenstory',
-    description: 'Eine einzelne Kennzahl mit Entwicklung und Kontext für Reports oder Social Updates.',
+    title: 'KPI milestone',
+    category: 'Data story',
+    description: 'A single metric with trend and context for reports or social updates.',
     props: {
-      brand: 'Klarblick',
-      label: 'Umsatz im August',
-      value: '€ 346k',
-      trend: '+18,4%',
-      caption: 'Wachstum gegenüber dem Vormonat.'
+      brand: 'Clearview',
+      label: 'August revenue',
+      value: '$346k',
+      trend: '+18.4%',
+      caption: 'Growth compared with the previous month.'
     }
   },
   {
     name: 'logo',
-    title: 'Marken-Launch',
+    title: 'Brand launch',
     category: 'Brand',
-    description: 'Eine neue Marke, Initiative oder Produktlinie bewusst auf ihren Namen reduzieren.',
+    description: 'Distill a new brand, initiative, or product line down to its name.',
     props: {
-      brand: 'Kreiswerk',
-      monogram: 'K',
-      tagline: 'Materialkreisläufe, die sich rechnen',
+      brand: 'Loopworks',
+      monogram: 'L',
+      tagline: 'Circular materials that pay off',
       background: '#10231c'
     }
   },
   {
     name: 'terminal',
-    title: 'CLI-Release',
+    title: 'CLI release',
     category: 'Developer Tools',
-    description: 'Ein technisches Release mit prägnanter Botschaft und direkt kopierbarem Befehl.',
+    description: 'A technical release with a concise message and copy-ready command.',
     props: {
       brand: 'tempo',
       title: 'Preview environments in seconds',
@@ -237,37 +237,37 @@ export const componentShowcases: readonly ComponentShowcase[] = [
   },
   {
     name: 'editorial',
-    title: 'Magazin-Cover',
+    title: 'Magazine cover',
     category: 'Publishing',
-    description: 'Ein typografisches Titelmotiv für Essays, Ausgaben und redaktionelle Schwerpunkte.',
+    description: 'A typographic cover for essays, issues, and editorial themes.',
     props: {
-      brand: 'Zwischenraum',
+      brand: 'Between Spaces',
       kicker: 'Essay',
-      title: 'Wem gehört die Stadt?',
-      meta: 'Ausgabe 04',
-      ghost: 'STADT'
+      title: 'Who owns the city?',
+      meta: 'Issue 04',
+      ghost: 'CITY'
     }
   },
   {
     name: 'showcase',
-    title: 'SaaS-Produktvorschau',
-    category: 'Produktmarketing',
-    description: 'Eine Softwareoberfläche zusammen mit ihrem wichtigsten Ergebnisversprechen zeigen.',
+    title: 'SaaS product preview',
+    category: 'Product marketing',
+    description: 'Show a software interface alongside its most important outcome.',
     props: {
-      title: 'Dein Geschäft auf einen Blick',
-      subtitle: 'Umsatz, Liquidität und Ziele in einer ruhigen, gemeinsamen Ansicht.',
-      url: 'app.klarblick.at',
+      title: 'Your business at a glance',
+      subtitle: 'Revenue, cash flow, and goals in one calm, shared view.',
+      url: 'app.clearview.com',
       accent: '#2563eb'
     }
   },
   {
     name: 'shiori',
-    title: 'Consumer-App-Launch',
-    category: 'Produktmarketing',
-    description: 'Ein freundliches, reduziertes Launch-Motiv für Apps mit einer einzelnen Kernidee.',
+    title: 'Consumer app launch',
+    category: 'Product marketing',
+    description: 'A friendly, minimal launch image for apps with a single core idea.',
     props: {
-      brand: 'Leseliste',
-      title: 'Artikel merken. Später wirklich lesen.',
+      brand: 'Reading List',
+      title: 'Save articles. Actually read them later.',
       background: '#faf6f1',
       brandColor: '#1a1a1a',
       titleColor: '#8b5e3c'
@@ -275,13 +275,13 @@ export const componentShowcases: readonly ComponentShowcase[] = [
   },
   {
     name: 'owner',
-    title: 'Restaurant-Kundengeschichte',
+    title: 'Restaurant customer story',
     category: 'Customer Story',
-    description: 'Eine echte Kundengeschichte mit Person, Produkt und Ort statt einer abstrakten Behauptung.',
+    description: 'A real customer story with a person, product, and place instead of an abstract claim.',
     props: {
-      brand: 'Gasthaus Kern',
-      eyebrow: 'Mehr Direktreservierungen.',
-      title: 'Wie ein Wiener Lokal seine Stammgäste zurückgewonnen hat.'
+      brand: 'Carter House',
+      eyebrow: 'More direct reservations.',
+      title: 'How a London restaurant won back its regulars.'
     },
     assets: [{
       prop: 'images',
@@ -318,10 +318,10 @@ export const componentExampleCode: Partial<Record<RegistryName, string>> = {
   product: `const product = await catalog.getProduct(params.slug);
 
 const { png } = await renderImage(Product, {
-  brand: 'Nordgrat',
+  brand: 'North Ridge',
   title: product.name,
   description: product.shortDescription,
-  price: new Intl.NumberFormat('de-AT', {
+  price: new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: product.currency
   }).format(product.price),
@@ -330,17 +330,17 @@ const { png } = await renderImage(Product, {
   changelog: `const release = await getLatestRelease();
 
 const { png } = await renderImage(Changelog, {
-  brand: 'Nordgrat Cloud',
+  brand: 'North Ridge Cloud',
   version: release.version,
   date: release.publishedAt,
-  title: 'Release bereit',
+  title: 'Release ready',
   items: release.highlights
 });`,
   event: `const event = await getEvent(params.slug);
 
 const { png } = await renderImage(Event, {
   brand: event.organizer,
-  label: 'Live in Wien',
+  label: 'Live in London',
   title: event.title,
   date: formatInTimeZone(event.startsAt, 'Europe/Vienna'),
   location: event.venue
@@ -349,9 +349,9 @@ const { png } = await renderImage(Event, {
 
 const { png } = await renderImage(Stat, {
   brand: account.name,
-  label: 'Umsatz im August',
-  value: formatCurrency(account.revenue, 'de-AT'),
-  trend: formatPercent(account.growth, 'de-AT'),
-  caption: 'Wachstum gegenüber dem Vormonat.'
+  label: 'August revenue',
+  value: formatCurrency(account.revenue, 'en-US'),
+  trend: formatPercent(account.growth, 'en-US'),
+  caption: 'Growth compared with the previous month.'
 });`
 };

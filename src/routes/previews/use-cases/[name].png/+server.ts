@@ -9,7 +9,7 @@ export const entries = () => showcaseUseCases.map(({ slug }) => ({ name: slug })
 
 export async function GET({ params }) {
   const useCase = showcaseUseCaseByName[params.name as keyof typeof showcaseUseCaseByName];
-  if (!useCase) error(404, 'Beispiel nicht gefunden');
+  if (!useCase) error(404, 'Example not found');
 
   const entry = registryByName[useCase.name];
   const props = await resolveExampleProps(useCase);
