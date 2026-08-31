@@ -38,7 +38,7 @@
   },
   "scripts": {
     "build": "svelte-package && publint",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
     "test:update": "UPDATE_SNAPSHOTS=1 vitest run",
     "registry:build": "node scripts/build-registry.mjs",
