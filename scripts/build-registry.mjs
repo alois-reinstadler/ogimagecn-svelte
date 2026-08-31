@@ -1,6 +1,6 @@
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
-import { components, defaultOrigin } from "./registry-metadata.mjs";
+import { components, defaultOrigin } from "../src/lib/registry-metadata.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const sourceRoot = join(root, "src", "lib");
@@ -69,8 +69,12 @@ const componentFiles = allFiles.filter((file) => file.includes(`${sep}components
 const publicComponentNames = new Set(components.map(({ name }) => name));
 const isPublicComponent = (file) =>
   file.includes(`${sep}components${sep}`) && publicComponentNames.has(kebab(basename(file, ".svelte")));
+const isSiteOnlyFile = (file) =>
+  file.includes(`${sep}site${sep}`) || file.includes(`${sep}components${sep}site${sep}`);
 const runtimeFiles = allFiles.filter((file) =>
   !isPublicComponent(file) &&
+  !isSiteOnlyFile(file) &&
+  !file.includes(`${sep}registry-metadata.`) &&
   !file.includes(`${sep}fonts${sep}`) &&
   !file.endsWith(`${sep}catalog.ts`) &&
   !file.endsWith("index.ts")

@@ -1,0 +1,2 @@
+class Theme { dark=$state(false); sync(){if(typeof document!=='undefined')this.dark=document.documentElement.classList.contains('dark')} toggle(){if(typeof document==='undefined')return;this.dark=!this.dark;document.documentElement.classList.toggle('dark',this.dark);document.documentElement.style.colorScheme=this.dark?'dark':'light';localStorage.setItem('ogimagecn-theme',this.dark?'dark':'light')} }
+export const theme=new Theme();

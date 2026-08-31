@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { cp, mkdtemp, readFile, rm, writeFile, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { components } from "./registry-metadata.mjs";
+import { components } from "../src/lib/registry-metadata.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const temporary = await mkdtemp(join(tmpdir(), "ogimagecn-svelte-consumer-"));

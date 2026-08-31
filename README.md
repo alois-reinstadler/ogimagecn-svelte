@@ -1,8 +1,20 @@
 # ogimagecn-svelte
 
-A typed Svelte 5 port of [ogimagecn](https://github.com/shadcn-labs/ogimagecn). Components are rendered to Svelte SSR, converted at a deliberately small boundary to Satori's virtual tree, and laid out by Satori. PNG output is rasterized from that SVG with resvg; this is not a browser-screenshot renderer.
+A typed Svelte 5 port of [ogimagecn](https://github.com/shadcn-labs/ogimagecn) for turning structured data into deterministic branded images. Components are rendered to Svelte SSR, converted at a deliberately small boundary to Satori's virtual tree, and laid out by Satori. PNG output is rasterized from that SVG with resvg; this is not a browser-screenshot renderer.
 
 The renderer is **server-only**. It uses Svelte's server renderer, Node font loading, and the native `@resvg/resvg-js` package. Keep calls in server routes, build scripts, hooks, or other Node runtimes, and do not import the renderer into browser code.
+
+## Where it fits
+
+The library works best when the content changes frequently but the visual system should remain controlled:
+
+- commerce images generated from product, price, currency, and availability data;
+- release cards produced by CI from versions and changelog highlights;
+- localized event previews with explicit fonts, dates, and time zones;
+- account milestones, certificates, and yearly summaries rendered in batches;
+- article, podcast, property, and other catalog-driven social previews.
+
+Satori is deliberately not a browser screenshot engine. Use a browser-based renderer when the output must reproduce arbitrary HTML/CSS, canvas charts, client-side widgets, or animation. Changing `width` and `height` changes the canvas; it does not automatically make a 1200 × 630 component responsive to square or story formats.
 
 ## Install
 
@@ -39,6 +51,43 @@ return new Response(png, {
 ```
 
 `renderSvg` returns the final SVG plus dimensions, captured warnings, and optional layout nodes. `renderPng` returns a PNG `Uint8Array`; `renderImage` returns both. The default size is 1200 × 630 and can be overridden with render options.
+
+## Commerce endpoint
+
+Format application data before handing it to the visual component. This keeps locale, validation, caching, and access policy in your application:
+
+```ts
+import { error } from '@sveltejs/kit';
+import { Product, renderImage } from 'ogimagecn-svelte';
+import { catalog } from '$lib/server/catalog';
+
+export async function GET({ params }) {
+  const product = await catalog.getProduct(params.slug);
+  if (!product) error(404, 'Produkt nicht gefunden');
+
+  const price = new Intl.NumberFormat('de-AT', {
+    style: 'currency',
+    currency: product.currency
+  }).format(product.price);
+
+  const { png } = await renderImage(Product, {
+    brand: 'Nordgrat',
+    title: product.name,
+    description: product.shortDescription,
+    price,
+    image: product.imageUrl
+  });
+
+  return new Response(png, {
+    headers: {
+      'content-type': 'image/png',
+      'cache-control': 'public, max-age=3600'
+    }
+  });
+}
+```
+
+Remote assets make the render dependent on another host. Validate and cache them, or embed trusted assets as data URIs, before using this pattern in a production endpoint.
 
 Public server helpers also have stable subpaths:
 

@@ -1,8 +1,0 @@
-{
-  "name": "ogimagecn-svelte-docs",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "node ../scripts/build-docs.mjs"
-  }
-}

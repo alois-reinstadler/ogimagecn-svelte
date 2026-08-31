@@ -142,7 +142,9 @@ export function productTemplate(p: Resolved<ProductProps>): OgNode {
       ]),
       div({alignItems:'center',alignSelf:'flex-start',backgroundColor:'#6366f1',borderRadius:'999px',color:'#fff',display:'flex',fontSize:'32px',fontWeight:700,padding:'14px 32px'},[p.price])
     ]),
-    div({alignItems:'center',backgroundColor:'#18181b',backgroundImage:p.image?`url(${p.image})`:'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',backgroundPosition:'center',backgroundSize:'486px 486px',border:'1px solid rgba(250,250,250,0.1)',borderRadius:'28px',display:'flex',height:'100%',justifyContent:'center',width:'486px'})
+    p.image
+      ? div({alignItems:'center',backgroundColor:'#18181b',border:'1px solid rgba(250,250,250,0.1)',borderRadius:'28px',display:'flex',height:'100%',justifyContent:'center',overflow:'hidden',width:'486px'},[image(p.image,486,486,{height:'100%',objectFit:'cover',width:'100%'})])
+      : div({alignItems:'center',backgroundColor:'#18181b',backgroundImage:'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',backgroundPosition:'center',backgroundSize:'486px 486px',border:'1px solid rgba(250,250,250,0.1)',borderRadius:'28px',display:'flex',height:'100%',justifyContent:'center',width:'486px'})
   ]);
 }
 

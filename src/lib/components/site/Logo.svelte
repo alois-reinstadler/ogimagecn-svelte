@@ -1,0 +1,2 @@
+<script lang="ts">let { class: className='' }:{class?:string}=$props();</script>
+<svg viewBox="0 0 32 32" class={className} aria-hidden="true"><rect width="32" height="32" rx="4" class="fill-foreground"/><rect x="5" y="7" width="22" height="18" rx="2" class="fill-background"/><circle cx="11" cy="13" r="2.5" class="fill-primary"/><path d="M7 22l6-6 4 4 3-3 5 5" fill="none" class="stroke-foreground" stroke-width="1.7" stroke-linejoin="round"/></svg>

@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { OgFont } from './types.js';
 
@@ -24,7 +25,7 @@ export function loadFixtureFonts(): Promise<OgFont[]> {
   fixtureFonts ??= Promise.all(
     FIXTURE_FONT_FILES.map(async ([name, file, weight, style, lang]) => ({
       name,
-      data: await readFile(fontUrl(file)),
+      data: await readFile(fontUrl(file)).catch(() => readFile(join(process.cwd(), 'src', 'lib', 'fonts', file))),
       weight,
       style,
       lang

@@ -29,8 +29,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build package and final-image gallery
         env:
-          DOCS_BASE_PATH: /ogimagecn-svelte
-          DOCS_ORIGIN: https://alois-reinstadler.github.io/ogimagecn-svelte
+          PAGES: 'true'
           REGISTRY_ORIGIN: https://alois-reinstadler.github.io/ogimagecn-svelte
         run: |
           pnpm build
@@ -38,7 +37,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: docs/build
+          path: build
 
   deploy:
     environment:

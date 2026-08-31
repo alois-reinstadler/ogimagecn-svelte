@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { mkdtemp, readFile, rm, stat, writeFile, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
-import { components } from "./registry-metadata.mjs";
+import { components } from "../src/lib/registry-metadata.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const temporary = await mkdtemp(join(tmpdir(), "ogimagecn-svelte-registry-"));
