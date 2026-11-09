@@ -23,6 +23,10 @@ try {
   run("pnpm", ["pack", "--pack-destination", packed], root);
   const archives = (await import("node:fs/promises")).readdir(packed);
   const tarball = join(packed, (await archives).find((name) => name.endsWith(".tgz")));
+  const packedEntries = execFileSync("tar", ["-tzf", tarball], { encoding: "utf8" }).split("\n");
+  if (packedEntries.some(path => /^package\/dist\/(?:site\/|components\/site\/)/.test(path))) {
+    throw new Error("Documentation-only modules leaked into the release archive");
+  }
   const rootPackage = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
   await writeFile(join(consumer, "package.json"), `${JSON.stringify({
     private: true,

@@ -6,6 +6,8 @@ import { join, relative, resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const generated = [
   join(root, "dist"),
+  join(root, "static", "fonts"),
+  join(root, "docs", "static", "fonts"),
   join(root, "docs", "build"),
   join(root, "static", "r"),
   join(root, "docs", "static", "r"),
@@ -47,4 +49,7 @@ if (firstRegistry !== secondRegistry) throw new Error("Registry output changed a
 run("packed fresh-consumer build", "pnpm", ["validate:package"]);
 run("real shadcn-svelte CLI installation", "node", ["scripts/validate-registry.mjs"]);
 run("base-path-safe docs and final-image gallery", "pnpm", ["docs:build"]);
+if (await hashTree(join(root, "src", "lib", "fonts")) !== await hashTree(join(root, "build", "fonts"))) {
+  throw new Error("Built site must retain every registry font and its license notice");
+}
 console.log(`\nClean validation succeeded. Deterministic registry SHA-256: ${firstRegistry}`);

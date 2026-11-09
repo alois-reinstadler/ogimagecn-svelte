@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
 import { components, defaultOrigin } from "../src/lib/registry-metadata.mjs";
 
@@ -39,7 +39,10 @@ async function registryFile(path) {
         "const fontUrl = (name: string) => new URL(`./fonts/${name}`, import.meta.url);",
         `const fontUrl = (name: string) => new URL(\`${origin}/fonts/\${name}\`);\n\nasync function loadRegistryFont(name: string): Promise<ArrayBuffer> {\n  const response = await fetch(fontUrl(name));\n  if (!response.ok) throw new Error(\`Unable to load fixture font \${name}: \${response.status} \${response.statusText}\`);\n  return response.arrayBuffer();\n}`
       )
-      .replace("data: await readFile(fontUrl(file)),", "data: await loadRegistryFont(file),");
+      .replace(/data: await readFile\(fontUrl\(file\)\)[^\n]*,/, "data: await loadRegistryFont(file),");
+    if (content.includes("readFile(fontUrl(file))") || !content.includes("data: await loadRegistryFont(file),")) {
+      throw new Error("Registry font loader transformation no longer matches the source");
+    }
   }
   return {
     path: relative(root, path).split(sep).join("/"),
@@ -119,6 +122,8 @@ await writeFile(join(root, "registry.json"), `${JSON.stringify(catalog, null, 2)
 for (const outputRoot of outputRoots) {
   await rm(outputRoot, { recursive: true, force: true });
   await mkdir(outputRoot, { recursive: true });
+  // Registry consumers fetch these assets; keep their font license notices beside them.
+  await cp(join(sourceRoot, "fonts"), join(dirname(outputRoot), "fonts"), { recursive: true });
   for (const item of items) {
     await writeFile(join(outputRoot, `${item.name}.json`), `${JSON.stringify(item, null, 2)}\n`);
   }
