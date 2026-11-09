@@ -7,11 +7,15 @@
   "sideEffects": false,
   "files": [
     "dist",
+    "!dist/site",
+    "!dist/components/site",
     "README.md",
     "UPSTREAM.md",
     "LICENSE",
     "docs/UPSTREAM_PIN.md",
-    "docs/UPSTREAM_AUDIT.md"
+    "docs/UPSTREAM_AUDIT.md",
+    "CHANGELOG.md",
+    "RELEASE.md"
   ],
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -42,7 +46,7 @@
     "test": "vitest run",
     "test:update": "UPDATE_SNAPSHOTS=1 vitest run",
     "registry:build": "node scripts/build-registry.mjs",
-    "docs:build": "vite build",
+    "docs:build": "pnpm registry:build && vite build",
     "validate:package": "node scripts/validate-package.mjs",
     "validate:registry": "node scripts/validate-registry.mjs",
     "validate:clean": "node scripts/clean-validate.mjs",

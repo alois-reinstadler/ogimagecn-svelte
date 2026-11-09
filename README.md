@@ -1,5 +1,7 @@
 # ogimagecn-svelte
 
+> Release candidate: see [release scope, limitations and owner checklist](RELEASE.md). This branch prepares a candidate; it does not certify publication readiness.
+
 A typed Svelte 5 port of [ogimagecn](https://github.com/shadcn-labs/ogimagecn) for turning structured data into deterministic branded images. Components are rendered to Svelte SSR, converted at a deliberately small boundary to Satori's virtual tree, and laid out by Satori. PNG output is rasterized from that SVG with resvg; this is not a browser-screenshot renderer.
 
 The renderer is **server-only**. It uses Svelte's server renderer, Node font loading, and the native `@resvg/resvg-js` package. Keep calls in server routes, build scripts, hooks, or other Node runtimes, and do not import the renderer into browser code.

@@ -1,3 +1,4 @@
+import ts from "typescript";
 import { execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdtemp, readFile, rm, stat, writeFile, mkdir } from "node:fs/promises";
@@ -74,6 +75,19 @@ try {
   for (const path of [...installedTargets, "src/lib/ogimagecn/components/OgNode.svelte", "src/lib/ogimagecn/render.ts", "src/lib/ogimagecn/fonts.ts"]) {
     await stat(join(consumer, path));
   }
+  // Execute the installed loader from a fresh consumer with no repository font fallback.
+  // Await asynchronously so the parent HTTP server can serve the font requests.
+  const installedFonts = await readFile(join(consumer, "src/lib/ogimagecn/fonts.ts"), "utf8");
+  await writeFile(join(consumer, "src/lib/ogimagecn/fonts.mjs"), ts.transpileModule(installedFonts, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 }
+  }).outputText);
+  await runAsync(process.execPath, ["--input-type=module", "-e", `
+    import { loadFixtureFonts } from './src/lib/ogimagecn/fonts.mjs';
+    const fonts = await loadFixtureFonts();
+    if (fonts.length !== 11 || fonts.some(({ data }) => data.byteLength === 0)) {
+      throw new Error('Installed registry did not fetch all eleven fixture fonts');
+    }
+  `], { cwd: consumer, env: { ...process.env, CI: "1" } });
   const config = JSON.parse(await readFile(join(consumer, "components.json"), "utf8"));
   if (config.registry !== "https://shadcn-svelte.com/registry") throw new Error("Core shadcn-svelte registry was replaced");
   console.log(`Installed and Svelte-checked all ${components.length} complete remote items with the real shadcn-svelte CLI`);

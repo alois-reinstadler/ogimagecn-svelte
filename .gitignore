@@ -9,3 +9,7 @@ test-results
 .DS_Store
 .upstream
 .upstream
+
+# Rebuilt from licensed package font assets by registry:build
+/static/fonts/
+/docs/static/fonts/
